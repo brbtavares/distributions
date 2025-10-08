@@ -1,0 +1,60 @@
+# === Rust build artifacts ===
+/target/
+# Se quiser manter alguns artefatos específicos, crie exceções (ex: !target/.gitkeep)
+
+# === Rust tooling temporários ===
+**/*.rs.bk
+**/*.rs.swp
+**/*.rs.swo
+
+# Arquivos de perfil / cobertura
+*.profraw
+*.profdata
+/coverage/
+/tarpaulin-report.html
+
+# Dumps / perf
+perf.data*
+
+# Logs e temporários genéricos
+*.log
+*.tmp
+*.temp
+*.bak
+*.old
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.iml
+*.code-workspace
+
+# Arquivos de ferramenta diversas
+*.swp
+*.swo
+
+# Relatórios eventuais
+/report/
+
+# Crash / panic dumps
+*.dmp
+core
+
+# Scripts auxiliares locais
+local_scripts/
+
+# Coverage lcov
+lcov.info
+
+# Arquivos de benchmarking gerados manualmente
+bench_output/
+
+# === NÃO IGNORADO DE PROPÓSITO ===
+# Cargo.lock: manter (projeto possui binário main). Remova abaixo se preferir não versionar para lib pura.
+# !Cargo.lock
