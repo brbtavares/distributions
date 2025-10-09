@@ -34,7 +34,7 @@ impl ContinuousDistribution for Normal {
     fn mean(&self) -> f64 { self.mu }
     fn variance(&self) -> f64 { self.sigma * self.sigma }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
-    // Box-Muller polar (Marsaglia) without external dependencies.
+        // Box-Muller polar (Marsaglia) without external dependencies.
         loop {
             let u1 = 2.0 * rng.next_f64() - 1.0; // (-1,1)
             let u2 = 2.0 * rng.next_f64() - 1.0;

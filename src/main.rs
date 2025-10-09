@@ -1,4 +1,4 @@
-use distributions::{normal::Normal, uniform::Uniform, exponential::Exponential, bernoulli::Bernoulli, rng::SplitMix64, ContinuousDistribution, DiscreteDistribution};
+use distributions::{dist::{Normal, Uniform, Exponential, Bernoulli}, rng::SplitMix64, ContinuousDistribution, DiscreteDistribution};
 
 fn main() {
     let normal = Normal::new(0.0, 1.0).unwrap();

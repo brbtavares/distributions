@@ -24,10 +24,11 @@
 //! ```
 
 pub mod rng;
-pub mod uniform;
-pub mod normal;
-pub mod exponential;
-pub mod bernoulli;
+pub mod dist;
+
+// Back-compat re-exports at crate root
+pub use dist::{uniform, normal, exponential, bernoulli};
+pub use dist::{Uniform, Normal, Exponential, Bernoulli};
 
 /// Trait for continuous real-valued distributions.
 pub trait ContinuousDistribution {
