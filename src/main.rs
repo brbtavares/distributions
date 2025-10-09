@@ -1,10 +1,11 @@
-use distributions::{dist::{Normal, Uniform, Exponential, Bernoulli}, rng::SplitMix64, ContinuousDistribution, DiscreteDistribution};
+use distributions::dist::{normal, uniform, exponential, bernoulli, DiscreteDistribution, ContinuousDistribution};
+use distributions::rng::SplitMix64;
 
 fn main() {
-    let normal = Normal::new(0.0, 1.0).unwrap();
-    let uniform = Uniform::new(-1.0, 1.0).unwrap();
-    let expo = Exponential::new(2.0).unwrap();
-    let bern = Bernoulli::new(0.4).unwrap();
+    let normal = normal::Normal::new(0.0, 1.0).unwrap();
+    let uniform = uniform::Uniform::new(-1.0, 1.0).unwrap();
+    let expo = exponential::Exponential::new(2.0).unwrap();
+    let bern = bernoulli::Bernoulli::new(0.4).unwrap();
 
     let mut rng = SplitMix64::seed_from_u64(2024);
     let x_n = normal.sample(&mut rng);

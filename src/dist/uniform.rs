@@ -1,4 +1,5 @@
-use crate::{ContinuousDistribution, DistError, rng::RngCore};
+use crate::dist::{ContinuousDistribution, DistError};
+use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Uniform {

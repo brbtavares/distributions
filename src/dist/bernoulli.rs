@@ -1,4 +1,5 @@
-use crate::{DiscreteDistribution, DistError, rng::RngCore};
+use crate::dist::{DiscreteDistribution, DistError};
+use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Bernoulli { p: f64 }

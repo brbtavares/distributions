@@ -1,4 +1,8 @@
-use crate::{ContinuousDistribution, DistError, rng::RngCore, consts::{INV_SQRT_2PI}, math};
+use crate::dist::{
+    ContinuousDistribution,
+    DistError
+    };
+use crate::{rng::RngCore, num};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Normal {
@@ -12,7 +16,7 @@ impl Normal {
     pub fn new(mu: f64, sigma: f64) -> Result<Self, DistError> {
         if !(sigma > 0.0 && sigma.is_finite() && mu.is_finite()) { return Err(DistError::InvalidParameter); }
         let inv_sigma = 1.0 / sigma;
-        let norm = INV_SQRT_2PI * inv_sigma;
+        let norm = num::INV_SQRT_2PI * inv_sigma;
         Ok(Self { mu, sigma, inv_sigma, norm })
     }
     #[inline] pub fn mean_param(&self) -> f64 { self.mu }
@@ -26,10 +30,10 @@ impl ContinuousDistribution for Normal {
     }
     fn cdf(&self, x: f64) -> f64 {
         let z = (x - self.mu) * self.inv_sigma;
-        math::standard_normal_cdf(z)
+        num::standard_normal_cdf(z)
     }
     fn inv_cdf(&self, p: f64) -> f64 {
-        self.mu + self.sigma * math::standard_normal_inv_cdf(p)
+        self.mu + self.sigma * num::standard_normal_inv_cdf(p)
     }
     fn mean(&self) -> f64 { self.mu }
     fn variance(&self) -> f64 { self.sigma * self.sigma }
