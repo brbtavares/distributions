@@ -6,31 +6,32 @@ pub mod uniform;
 pub mod normal;
 pub mod exponential;
 pub mod bernoulli;
-
-/// Trait for continuous real-valued distributions.
-pub trait Continuous {
-    /// Returns f(x) (density / pdf).
-    fn pdf(&self, x: f64) -> f64;
-    /// Returns F(x) (CDF).
-    fn cdf(&self, x: f64) -> f64;
-    /// Quantile: F^{-1}(p) for p in (0,1).
-    fn inv_cdf(&self, p: f64) -> f64;
+/// Basic moments available for a distribution.
+pub trait Moments {
     fn mean(&self) -> f64;
     fn variance(&self) -> f64;
-    /// Draw a single sample using the provided RNG.
-    fn sample<R: rng::RngCore>(&self, rng: &mut R) -> f64;
+}
+
+/// Basic trait for distributions.
+pub trait Distribution {
+    type Value;
+    fn cdf(&self, x: Self::Value) -> f64;
+    fn sample<R: rng::RngCore>(&self, rng: &mut R) -> Self::Value;
+}
+
+/// Trait for continuous real-valued distributions.
+pub trait Continuous: Distribution<Value = f64> {
+    /// Returns f(x) (density / pdf).
+    fn pdf(&self, x: f64) -> f64;
+    /// Quantile: F^{-1}(p) for p in (0,1).
+    fn inv_cdf(&self, p: f64) -> f64;
 }
 
 /// Trait for discrete distributions over {0,1} or small integers.
-pub trait Discrete {
-    type Value: Copy + core::fmt::Debug + PartialEq;
+pub trait Discrete: Distribution<Value = i64> {
     /// pmf(x)
     fn pmf(&self, x: Self::Value) -> f64;
-    fn cdf(&self, x: Self::Value) -> f64;
     fn inv_cdf(&self, p: f64) -> Self::Value;
-    fn mean(&self) -> f64;
-    fn variance(&self) -> f64;
-    fn sample<R: rng::RngCore>(&self, rng: &mut R) -> Self::Value;
 }
 
 /// Error returned when constructing distributions with invalid parameters.
@@ -42,7 +43,7 @@ pub enum DistError {
 #[cfg(test)]
 mod tests {
     use crate::dist::{normal::Normal, uniform::Uniform};
-    use crate::dist::Continuous;
+    use crate::dist::{Continuous, Distribution};
     use crate::rng::SplitMix64;
 
     #[test]

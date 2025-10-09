@@ -1,4 +1,4 @@
-use crate::dist::{Discrete, DistError};
+use crate::dist::{Discrete, DistError, Moments, Distribution};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -12,21 +12,27 @@ impl Bernoulli {
     pub fn p(&self) -> f64 { self.p }
 }
 
+impl Distribution for Bernoulli {
+    type Value = i64;
+    fn cdf(&self, x: Self::Value) -> f64 {
+        match x { x if x < 0 => 0.0, 0 => 1.0 - self.p, 1 => 1.0, _ => 1.0 }
+    }
+    fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value { if rng.next_f64() < self.p { 1 } else { 0 } }
+}
+
 impl Discrete for Bernoulli {
-    type Value = u8; // 0 or 1
     fn pmf(&self, x: Self::Value) -> f64 {
         match x { 0 => 1.0 - self.p, 1 => self.p, _ => 0.0 }
-    }
-    fn cdf(&self, x: Self::Value) -> f64 {
-        match x { 0 => 1.0 - self.p, 1 => 1.0, _ => if x > 1 { 1.0 } else { 0.0 } }
     }
     fn inv_cdf(&self, p: f64) -> Self::Value {
         debug_assert!(p >= 0.0 && p <= 1.0);
         if p < 1.0 - self.p { 0 } else { 1 }
     }
+}
+
+impl Moments for Bernoulli {
     fn mean(&self) -> f64 { self.p }
     fn variance(&self) -> f64 { self.p * (1.0 - self.p) }
-    fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value { if rng.next_f64() < self.p { 1 } else { 0 } }
 }
 
 #[cfg(test)]

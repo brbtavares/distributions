@@ -1,6 +1,8 @@
 use crate::dist::{
     Continuous,
-    DistError
+    DistError,
+    Moments,
+    Distribution,
     };
 use crate::{rng::RngCore, num};
 
@@ -23,20 +25,12 @@ impl Normal {
     #[inline] pub fn sigma(&self) -> f64 { self.sigma }
 }
 
-impl Continuous for Normal {
-    fn pdf(&self, x: f64) -> f64 {
-        let z = (x - self.mu) * self.inv_sigma;
-        self.norm * (-0.5 * z * z).exp()
-    }
+impl Distribution for Normal {
+    type Value = f64;
     fn cdf(&self, x: f64) -> f64 {
         let z = (x - self.mu) * self.inv_sigma;
         num::standard_normal_cdf(z)
     }
-    fn inv_cdf(&self, p: f64) -> f64 {
-        self.mu + self.sigma * num::standard_normal_inv_cdf(p)
-    }
-    fn mean(&self) -> f64 { self.mu }
-    fn variance(&self) -> f64 { self.sigma * self.sigma }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
         // Box-Muller polar (Marsaglia) without external dependencies.
         loop {
@@ -48,6 +42,21 @@ impl Continuous for Normal {
             return self.mu + self.sigma * u1 * factor;
         }
     }
+}
+
+impl Continuous for Normal {
+    fn pdf(&self, x: f64) -> f64 {
+        let z = (x - self.mu) * self.inv_sigma;
+        self.norm * (-0.5 * z * z).exp()
+    }
+    fn inv_cdf(&self, p: f64) -> f64 {
+        self.mu + self.sigma * num::standard_normal_inv_cdf(p)
+    }
+}
+
+impl Moments for Normal {
+    fn mean(&self) -> f64 { self.mu }
+    fn variance(&self) -> f64 { self.sigma * self.sigma }
 }
 
 #[cfg(test)]

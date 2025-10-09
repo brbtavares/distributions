@@ -1,4 +1,4 @@
-use crate::dist::{Continuous, DistError};
+use crate::dist::{Continuous, DistError, Moments, Distribution};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -12,23 +12,30 @@ impl Exponential {
     #[inline] pub fn lambda(&self) -> f64 { self.lambda }
 }
 
+impl Distribution for Exponential {
+    type Value = f64;
+    fn cdf(&self, x: f64) -> f64 {
+        if x <= 0.0 { 0.0 } else { 1.0 - (-self.lambda * x).exp() }
+    }
+    fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
+        let u = rng.next_f64();
+        -u.ln() / self.lambda
+    }
+}
+
 impl Continuous for Exponential {
     fn pdf(&self, x: f64) -> f64 {
         if x < 0.0 { 0.0 } else { self.lambda * (-self.lambda * x).exp() }
-    }
-    fn cdf(&self, x: f64) -> f64 {
-        if x <= 0.0 { 0.0 } else { 1.0 - (-self.lambda * x).exp() }
     }
     fn inv_cdf(&self, p: f64) -> f64 {
         debug_assert!(p > 0.0 && p < 1.0);
         - (1.0 - p).ln() / self.lambda
     }
+}
+
+impl Moments for Exponential {
     fn mean(&self) -> f64 { 1.0 / self.lambda }
     fn variance(&self) -> f64 { 1.0 / (self.lambda * self.lambda) }
-    fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
-        let u = rng.next_f64();
-        -u.ln() / self.lambda
-    }
 }
 
 #[cfg(test)]

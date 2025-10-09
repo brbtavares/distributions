@@ -1,4 +1,4 @@
-use crate::dist::{Continuous, DistError};
+use crate::dist::{Continuous, DistError, Moments, Distribution};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -18,18 +18,25 @@ impl Uniform {
     #[inline] pub fn b(&self) -> f64 { self.b }
 }
 
+impl Distribution for Uniform {
+    type Value = f64;
+    fn cdf(&self, x: f64) -> f64 {
+        if x <= self.a { 0.0 } else if x >= self.b { 1.0 } else { (x - self.a) * self.inv_width }
+    }
+    fn sample<R: RngCore>(&self, rng: &mut R) -> f64 { self.a + (self.b - self.a) * rng.next_f64() }
+}
+
 impl Continuous for Uniform {
     fn pdf(&self, x: f64) -> f64 {
         if x < self.a || x > self.b { 0.0 } else { self.inv_width }
-    }
-    fn cdf(&self, x: f64) -> f64 {
-        if x <= self.a { 0.0 } else if x >= self.b { 1.0 } else { (x - self.a) * self.inv_width }
     }
     fn inv_cdf(&self, p: f64) -> f64 {
         debug_assert!((0.0..=1.0).contains(&p));
         self.a + (self.b - self.a) * p
     }
+}
+
+impl Moments for Uniform {
     fn mean(&self) -> f64 { 0.5 * (self.a + self.b) }
     fn variance(&self) -> f64 { (self.b - self.a).powi(2) / 12.0 }
-    fn sample<R: RngCore>(&self, rng: &mut R) -> f64 { self.a + (self.b - self.a) * rng.next_f64() }
 }

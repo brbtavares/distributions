@@ -1,4 +1,4 @@
-use distributions::dist::{normal, uniform, exponential, bernoulli, Discrete, Continuous};
+use distributions::dist::{normal, uniform, exponential, bernoulli, Discrete, Continuous, Moments, Distribution};
 use distributions::rng::SplitMix64;
 
 fn main() {
