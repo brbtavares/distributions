@@ -17,12 +17,15 @@ impl Distribution for Bernoulli {
     fn cdf(&self, x: Self::Value) -> f64 {
         match x { x if x < 0 => 0.0, 0 => 1.0 - self.p, 1 => 1.0, _ => 1.0 }
     }
+    fn in_support(&self, x: Self::Value) -> bool {
+        x == 0 || x == 1
+    }
     fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value { if rng.next_f64() < self.p { 1 } else { 0 } }
 }
 
 impl Discrete for Bernoulli {
     fn pmf(&self, x: Self::Value) -> f64 {
-        match x { 0 => 1.0 - self.p, 1 => self.p, _ => 0.0 }
+        if self.in_support(x) { if x == 1 { self.p } else { 1.0 - self.p } } else { 0.0 }
     }
     fn inv_cdf(&self, p: f64) -> Self::Value {
         debug_assert!(p >= 0.0 && p <= 1.0);

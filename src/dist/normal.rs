@@ -31,6 +31,9 @@ impl Distribution for Normal {
         let z = (x - self.mu) * self.inv_sigma;
         num::standard_normal_cdf(z)
     }
+    fn in_support(&self, x: f64) -> bool {
+        x.is_finite()
+    }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
         // Box-Muller polar (Marsaglia) without external dependencies.
         loop {
@@ -46,6 +49,7 @@ impl Distribution for Normal {
 
 impl Continuous for Normal {
     fn pdf(&self, x: f64) -> f64 {
+        if !self.in_support(x) { return 0.0; }
         let z = (x - self.mu) * self.inv_sigma;
         self.norm * (-0.5 * z * z).exp()
     }

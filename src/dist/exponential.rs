@@ -17,6 +17,9 @@ impl Distribution for Exponential {
     fn cdf(&self, x: f64) -> f64 {
         if x <= 0.0 { 0.0 } else { 1.0 - (-self.lambda * x).exp() }
     }
+    fn in_support(&self, x: f64) -> bool {
+        x >= 0.0 && x.is_finite()
+    }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
         let u = rng.next_f64();
         -u.ln() / self.lambda
@@ -25,7 +28,7 @@ impl Distribution for Exponential {
 
 impl Continuous for Exponential {
     fn pdf(&self, x: f64) -> f64 {
-        if x < 0.0 { 0.0 } else { self.lambda * (-self.lambda * x).exp() }
+        if self.in_support(x) { self.lambda * (-self.lambda * x).exp() } else { 0.0 }
     }
     fn inv_cdf(&self, p: f64) -> f64 {
         debug_assert!(p > 0.0 && p < 1.0);

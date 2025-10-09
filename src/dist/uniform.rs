@@ -23,12 +23,15 @@ impl Distribution for Uniform {
     fn cdf(&self, x: f64) -> f64 {
         if x <= self.a { 0.0 } else if x >= self.b { 1.0 } else { (x - self.a) * self.inv_width }
     }
+    fn in_support(&self, x: f64) -> bool {
+        x >= self.a && x <= self.b && x.is_finite()
+    }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 { self.a + (self.b - self.a) * rng.next_f64() }
 }
 
 impl Continuous for Uniform {
     fn pdf(&self, x: f64) -> f64 {
-        if x < self.a || x > self.b { 0.0 } else { self.inv_width }
+        if self.in_support(x) { self.inv_width } else { 0.0 }
     }
     fn inv_cdf(&self, p: f64) -> f64 {
         debug_assert!((0.0..=1.0).contains(&p));

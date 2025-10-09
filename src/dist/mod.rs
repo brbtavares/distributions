@@ -17,6 +17,7 @@ pub trait Distribution {
     type Value;
     fn cdf(&self, x: Self::Value) -> f64;
     fn sample<R: rng::RngCore>(&self, rng: &mut R) -> Self::Value;
+    fn in_support(&self, x: Self::Value) -> bool;
 }
 
 /// Trait for continuous real-valued distributions.
