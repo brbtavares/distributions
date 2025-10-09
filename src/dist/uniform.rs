@@ -1,4 +1,4 @@
-use crate::dist::{ContinuousDistribution, DistError};
+use crate::dist::{Continuous, DistError};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -18,7 +18,7 @@ impl Uniform {
     #[inline] pub fn b(&self) -> f64 { self.b }
 }
 
-impl ContinuousDistribution for Uniform {
+impl Continuous for Uniform {
     fn pdf(&self, x: f64) -> f64 {
         if x < self.a || x > self.b { 0.0 } else { self.inv_width }
     }

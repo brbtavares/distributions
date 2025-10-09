@@ -1,5 +1,5 @@
 use crate::dist::{
-    ContinuousDistribution,
+    Continuous,
     DistError
     };
 use crate::{rng::RngCore, num};
@@ -23,7 +23,7 @@ impl Normal {
     #[inline] pub fn sigma(&self) -> f64 { self.sigma }
 }
 
-impl ContinuousDistribution for Normal {
+impl Continuous for Normal {
     fn pdf(&self, x: f64) -> f64 {
         let z = (x - self.mu) * self.inv_sigma;
         self.norm * (-0.5 * z * z).exp()

@@ -3,7 +3,7 @@
 //!
 //! Initial features:
 //! - Internal pseudo-random number generator (SplitMix64)
-//! - Generic trait `ContinuousDistribution`
+//! - Generic trait `Continuous`
 //! - Distributions: Uniform, Normal, Exponential
 //! - Simple discrete distribution: Bernoulli
 //! - PDF, CDF, inverse CDF (quantile), mean and variance
@@ -11,7 +11,7 @@
 //!
 //! Quick examples:
 //! ```
-//! use distributions::{rng::SplitMix64, dist::normal::Normal, dist::ContinuousDistribution};
+//! use distributions::{rng::SplitMix64, dist::normal::Normal, Continuous};
 //! let normal = Normal::new(0.0, 1.0).unwrap();
 //! let mut rng = SplitMix64::seed_from_u64(123);
 //! let x = normal.sample(&mut rng);
@@ -26,3 +26,6 @@
 pub mod rng;
 pub mod dist;
 pub mod num;
+
+// Re-export commonly used traits at crate root for ergonomic imports
+pub use dist::{Continuous, Discrete};

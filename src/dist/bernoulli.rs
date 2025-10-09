@@ -1,4 +1,4 @@
-use crate::dist::{DiscreteDistribution, DistError};
+use crate::dist::{Discrete, DistError};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -12,7 +12,7 @@ impl Bernoulli {
     pub fn p(&self) -> f64 { self.p }
 }
 
-impl DiscreteDistribution for Bernoulli {
+impl Discrete for Bernoulli {
     type Value = u8; // 0 or 1
     fn pmf(&self, x: Self::Value) -> f64 {
         match x { 0 => 1.0 - self.p, 1 => self.p, _ => 0.0 }

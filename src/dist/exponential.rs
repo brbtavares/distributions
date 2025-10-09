@@ -1,4 +1,4 @@
-use crate::dist::{ContinuousDistribution, DistError};
+use crate::dist::{Continuous, DistError};
 use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
@@ -12,7 +12,7 @@ impl Exponential {
     #[inline] pub fn lambda(&self) -> f64 { self.lambda }
 }
 
-impl ContinuousDistribution for Exponential {
+impl Continuous for Exponential {
     fn pdf(&self, x: f64) -> f64 {
         if x < 0.0 { 0.0 } else { self.lambda * (-self.lambda * x).exp() }
     }

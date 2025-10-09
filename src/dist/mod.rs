@@ -8,7 +8,7 @@ pub mod exponential;
 pub mod bernoulli;
 
 /// Trait for continuous real-valued distributions.
-pub trait ContinuousDistribution {
+pub trait Continuous {
     /// Returns f(x) (density / pdf).
     fn pdf(&self, x: f64) -> f64;
     /// Returns F(x) (CDF).
@@ -22,7 +22,7 @@ pub trait ContinuousDistribution {
 }
 
 /// Trait for discrete distributions over {0,1} or small integers.
-pub trait DiscreteDistribution {
+pub trait Discrete {
     type Value: Copy + core::fmt::Debug + PartialEq;
     /// pmf(x)
     fn pmf(&self, x: Self::Value) -> f64;
@@ -42,7 +42,7 @@ pub enum DistError {
 #[cfg(test)]
 mod tests {
     use crate::dist::{normal::Normal, uniform::Uniform};
-    use crate::dist::ContinuousDistribution;
+    use crate::dist::Continuous;
     use crate::rng::SplitMix64;
 
     #[test]
