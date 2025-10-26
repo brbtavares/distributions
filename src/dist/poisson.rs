@@ -51,19 +51,73 @@ impl Distribution for Poisson {
     fn in_support(&self, x: Self::Value) -> bool { x >= 0 }
 
     fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value {
-        // Inversion method via cumulative sum of pmf, expected O(λ) iterations.
-        // For small to moderate λ this is fine; can be improved later with PTRS.
-        let mut k: i64 = 0;
-        let mut p = self.pmf_rec_start();
-        let mut c = p;
-        let u = rng.next_f64();
-        while u > c {
-            k += 1;
-            p *= self.lambda / (k as f64);
-            c += p;
-            // For very large λ this could be many iterations; left as future optimization.
+        // Hybrid sampler:
+        // - For small λ use simple inversion from 0 (fast enough and exact).
+        // - For large λ use exact inversion starting at the mode ("chop-down from the mode"),
+        //   which takes O(|k-λ|) expected steps instead of O(λ).
+        if self.lambda < 30.0 {
+            // Small-λ inversion
+            let mut k: i64 = 0;
+            let mut p = self.pmf_rec_start();
+            let mut c = p;
+            let u = rng.next_f64();
+            while u > c {
+                k += 1;
+                p *= self.lambda / (k as f64);
+                c += p;
+            }
+            return k;
         }
-        k
+
+        // Large-λ exact inversion from the mode.
+        let lambda = self.lambda;
+        let m = lambda.floor() as i64; // mode = floor(λ)
+        let log_p_m = (m as f64) * lambda.ln() - lambda - ln_factorial_u64(m as u64);
+    let p_m = log_p_m.exp(); // pmf at mode
+
+        // In rare cases of extreme λ the exponent can underflow to 0; if so, fall back.
+        if !(p_m > 0.0) {
+            // Fallback to small-λ inversion (will be slow but safe for pathological params).
+            let mut k: i64 = 0;
+            let mut p = self.pmf_rec_start();
+            let mut c = p;
+            let u = rng.next_f64();
+            while u > c {
+                k += 1;
+                p *= self.lambda / (k as f64);
+                c += p;
+            }
+            return k;
+        }
+
+        let u = rng.next_f64();
+        let mut c = p_m;
+        if u <= c { return m; }
+
+        // Grow symmetrically from the mode to both tails using recurrences:
+        // p(k-1) = p(k) * k / λ,  p(k+1) = p(k) * λ / (k+1)
+        let mut left = p_m;
+        let mut right = p_m;
+        let mut i: i64 = 1;
+        loop {
+            // Left side mass at m - i
+            if i <= m {
+                left *= (m - (i - 1)) as f64 / lambda; // from p(m-(i-1)) -> p(m-i)
+                c += left;
+                if u <= c { return m - i; }
+            } else {
+                // No more left mass once we pass zero
+                left = 0.0;
+            }
+
+            // Right side mass at m + i
+            right *= lambda / (m + i) as f64; // from p(m+(i-1)) -> p(m+i)
+            c += right;
+            if u <= c { return m + i; }
+
+            // Guaranteed to terminate as c approaches 1.0
+            i += 1;
+        }
     }
 }
 
@@ -89,6 +143,44 @@ impl Discrete for Poisson {
 impl Moments for Poisson {
     fn mean(&self) -> f64 { self.lambda }
     fn variance(&self) -> f64 { self.lambda }
+}
+
+// -------- Internal helpers for large-λ sampling --------
+
+#[inline]
+fn ln_factorial_u64(n: u64) -> f64 {
+    // Exact table for 0..=20
+    const LN_FACT_SMALL: [f64; 21] = [
+        0.0,
+        0.0,
+        0.6931471805599453,
+        1.791759469228055,
+        3.1780538303479458,
+        4.787491742782046,
+        6.579251212010101,
+        8.525161361065415,
+        10.60460290274525,
+        12.80182748008147,
+        15.104412573075516,
+        17.502307845873887,
+        19.98721449566189,
+        22.552163853123425,
+        25.19122118273868,
+        27.899271383840894,
+        30.671860106080675,
+        33.50507345013689,
+        36.39544520803305,
+        39.339884187199495,
+        42.335616460753485,
+    ];
+    if n <= 20 { return LN_FACT_SMALL[n as usize]; }
+    // Stirling with 1/(12n) - 1/(360n^3) + 1/(1260 n^5) correction
+    let x = n as f64;
+    let inv = 1.0 / x;
+    let inv2 = inv * inv;
+    let inv3 = inv2 * inv;
+    let inv5 = inv3 * inv2;
+    x * x.ln() - x + 0.5 * ((2.0 * std::f64::consts::PI * x).ln()) + (inv / 12.0) - (inv3 / 360.0) + (inv5 / 1260.0)
 }
 
 #[cfg(test)]
