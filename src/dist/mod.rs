@@ -6,6 +6,7 @@ pub mod uniform;
 pub mod normal;
 pub mod exponential;
 pub mod bernoulli;
+pub mod poisson;
 /// Basic moments available for a distribution.
 pub trait Moments {
     fn mean(&self) -> f64;
