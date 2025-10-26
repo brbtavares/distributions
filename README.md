@@ -75,6 +75,16 @@ cargo test --all
 - Normal CDF/quantile use classic approximations (erf and Acklam’s probit). Tolerances in tests reflect expected approximation error.
 - Poisson sampling currently uses inversion by cumulative sum. For large λ, more efficient algorithms (PTRS) can be added.
 
+## Benchmarks
+
+We use Criterion for micro-benchmarks. To run:
+
+```bash
+cargo bench
+```
+
+The included benchmark compares Poisson sampling for small (λ=2.5) and large (λ=250) regimes.
+
 ## Roadmap
 
 - More distributions: Gamma, Beta, Binomial, Geometric, Lognormal, Chi-squared
