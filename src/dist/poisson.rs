@@ -1,5 +1,6 @@
 use crate::dist::{Discrete, DistError, Moments, Distribution};
 use crate::rng::RngCore;
+use crate::num;
 
 /// Poisson(λ) distribution over non-negative integers.
 ///
@@ -52,9 +53,9 @@ impl Distribution for Poisson {
 
     fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value {
         // Hybrid sampler:
-        // - For small λ use simple inversion from 0 (fast enough and exact).
-        // - For large λ use exact inversion starting at the mode ("chop-down from the mode"),
-        //   which takes O(|k-λ|) expected steps instead of O(λ).
+        // - λ < 30: simple inversion from 0 (exact, fast enough)
+        // - 30 ≤ λ < 400: inversion from the mode (exact, ~O(√λ))
+        // - λ ≥ 400: quantile-anchored inversion (exact, near O(1) with small constant)
         if self.lambda < 30.0 {
             // Small-λ inversion
             let mut k: i64 = 0;
@@ -68,54 +69,93 @@ impl Distribution for Poisson {
             }
             return k;
         }
-
-        // Large-λ exact inversion from the mode.
         let lambda = self.lambda;
         let m = lambda.floor() as i64; // mode = floor(λ)
-        let log_p_m = (m as f64) * lambda.ln() - lambda - ln_factorial_u64(m as u64);
-    let p_m = log_p_m.exp(); // pmf at mode
-
-        // In rare cases of extreme λ the exponent can underflow to 0; if so, fall back.
-        if !(p_m > 0.0) {
-            // Fallback to small-λ inversion (will be slow but safe for pathological params).
-            let mut k: i64 = 0;
-            let mut p = self.pmf_rec_start();
-            let mut c = p;
-            let u = rng.next_f64();
-            while u > c {
-                k += 1;
-                p *= self.lambda / (k as f64);
-                c += p;
+        if lambda < 400.0 {
+            // Mode-based symmetric inversion
+            let log_p_m = (m as f64) * lambda.ln() - lambda - ln_factorial_u64(m as u64);
+            let p_m = log_p_m.exp();
+            if !(p_m > 0.0) {
+                // Fallback to small-λ path (pathological underflow)
+                let mut k: i64 = 0;
+                let mut p = self.pmf_rec_start();
+                let mut c = p;
+                let u = rng.next_f64();
+                while u > c {
+                    k += 1;
+                    p *= self.lambda / (k as f64);
+                    c += p;
+                }
+                return k;
             }
-            return k;
+            let u = rng.next_f64();
+            let mut c = p_m;
+            if u <= c { return m; }
+            let mut left = p_m;
+            let mut right = p_m;
+            let mut i: i64 = 1;
+            loop {
+                if i <= m {
+                    left *= (m - (i - 1)) as f64 / lambda; // p(m-(i-1)) -> p(m-i)
+                    c += left;
+                    if u <= c { return m - i; }
+                } else {
+                    left = 0.0;
+                }
+                right *= lambda / (m + i) as f64; // p(m+(i-1)) -> p(m+i)
+                c += right;
+                if u <= c { return m + i; }
+                i += 1;
+            }
         }
-
+        // Quantile-anchored inversion for very large λ
+        let u_anchor = rng.next_f64();
+        let z = num::standard_normal_inv_cdf(u_anchor);
+        let mut k0 = (lambda + z * lambda.sqrt()).floor() as i64;
+        if k0 < 0 { k0 = 0; }
+        let log_p0 = (k0 as f64) * lambda.ln() - lambda - ln_factorial_u64(k0 as u64);
+        let p0 = log_p0.exp();
+        if !(p0 > 0.0 && p0.is_finite()) {
+            // Fallback to mode-based
+            let log_p_m = (m as f64) * lambda.ln() - lambda - ln_factorial_u64(m as u64);
+            let p_m = log_p_m.exp();
+            let u = rng.next_f64();
+            let mut c = p_m;
+            if u <= c { return m; }
+            let mut left = p_m;
+            let mut right = p_m;
+            let mut i: i64 = 1;
+            loop {
+                if i <= m {
+                    left *= (m - (i - 1)) as f64 / lambda;
+                    c += left;
+                    if u <= c { return m - i; }
+                } else {
+                    left = 0.0;
+                }
+                right *= lambda / (m + i) as f64;
+                c += right;
+                if u <= c { return m + i; }
+                i += 1;
+            }
+        }
         let u = rng.next_f64();
-        let mut c = p_m;
-        if u <= c { return m; }
-
-        // Grow symmetrically from the mode to both tails using recurrences:
-        // p(k-1) = p(k) * k / λ,  p(k+1) = p(k) * λ / (k+1)
-        let mut left = p_m;
-        let mut right = p_m;
+        let mut c = p0;
+        if u <= c { return k0; }
+        let mut left = p0;
+        let mut right = p0;
         let mut i: i64 = 1;
         loop {
-            // Left side mass at m - i
-            if i <= m {
-                left *= (m - (i - 1)) as f64 / lambda; // from p(m-(i-1)) -> p(m-i)
+            if i <= k0 {
+                left *= (k0 - (i - 1)) as f64 / lambda;
                 c += left;
-                if u <= c { return m - i; }
+                if u <= c { return k0 - i; }
             } else {
-                // No more left mass once we pass zero
                 left = 0.0;
             }
-
-            // Right side mass at m + i
-            right *= lambda / (m + i) as f64; // from p(m+(i-1)) -> p(m+i)
+            right *= lambda / (k0 + i) as f64;
             c += right;
-            if u <= c { return m + i; }
-
-            // Guaranteed to terminate as c approaches 1.0
+            if u <= c { return k0 + i; }
             i += 1;
         }
     }

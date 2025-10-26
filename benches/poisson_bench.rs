@@ -37,5 +37,22 @@ fn bench_poisson_large_lambda(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, bench_poisson_small_lambda, bench_poisson_large_lambda);
+fn bench_poisson_very_large_lambda(c: &mut Criterion) {
+    let pois = Poisson::new(1000.0).unwrap();
+    c.bench_function("poisson_sample_lambda_1000", |b| {
+        b.iter_batched(
+            || SplitMix64::seed_from_u64(789),
+            |mut rng| {
+                let mut acc = 0i64;
+                for _ in 0..1000 {
+                    acc ^= pois.sample(&mut rng);
+                }
+                black_box(acc)
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
+criterion_group!(benches, bench_poisson_small_lambda, bench_poisson_large_lambda, bench_poisson_very_large_lambda);
 criterion_main!(benches);
