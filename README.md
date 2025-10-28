@@ -132,10 +132,52 @@ The included benchmark compares Poisson sampling for small (λ=2.5) and large (�
 
 ## Roadmap
 
-- More distributions: Gamma, Beta, Binomial, Geometric, Lognormal, Chi-squared
-- Faster samplers: Ziggurat/ratio-of-uniforms for Normal; PTRS for Poisson(λ≫1)
-- Benchmarks (Criterion) and CI
-- Optional features: `serde`, potential `no_std` where feasible
+- Distributions and structure
+  - More distributions: Gamma, Beta, Binomial, Geometric, Lognormal, Chi-squared, Dirichlet, Multivariate Normal
+  - Truncation and affine transforms (shift/scale) as generic wrappers
+  - Mixture models (finite mixtures) with EM fitting
+
+- Inference and model assessment
+  - Parameter estimation: MLE/MOM with uncertainty (Fisher information)
+  - Model selection: AIC/BIC, automated “best fit” among candidates
+  - Goodness-of-fit tests: Kolmogorov–Smirnov, Anderson–Darling, chi-squared
+  - Robust statistics and empirical quantiles with confidence intervals
+
+- Advanced sampling and performance
+  - Faster samplers: Ziggurat or Ratio-of-Uniforms (Normal/Exponential), PTRS for Poisson (λ ≫ 1)
+  - Alias method (Walker/Vose) for arbitrary categorical distributions
+  - Variance reduction: antithetic variates, control variates, stratification
+  - Vectorization/batching (std::simd where feasible), allocation-free sample_n and sample_iter
+
+- Dependence and multivariate
+  - Copulas (Gaussian, Student-t) to construct multivariate dependencies
+  - Multivariate families: Multivariate Normal, Wishart/Inverse-Wishart, Dirichlet
+
+- Stochastic processes and simulation
+  - Poisson processes (homogeneous/inhomogeneous), renewal processes, simple Hawkes
+  - Brownian motion, Ornstein–Uhlenbeck; SDE discretizations (Euler–Maruyama)
+  - Time-series generators: AR(1), light ARMA components for simulations
+
+- Practical statistics and summaries
+  - Histograms, KDE, ECDF, descriptive summaries (median, MAD, etc.)
+  - Streaming quantiles (P² algorithm, optional t-digest via feature flag)
+  - Distances/divergences: KL, Jensen–Shannon, Wasserstein (1D)
+
+- API ergonomics and safety
+  - logpdf/logpmf/logcdf/logccdf for numerical stability; ccdf for tail work
+  - Additional moments: entropy, skewness, kurtosis, cumulants
+  - SeedableRng-style helper trait; domain types (Probability, Positive, Interval)
+  - Feature flags: `serde`, `no_std` (where viable), `simd`, `special-fns`
+
+- Numerics and special functions
+  - Special functions: gamma/incomplete gamma, beta/incomplete beta, digamma/trigamma
+  - Generic numerical inversion for CDFs (bracketing + Newton/Halley) with tolerances
+  - Tail-accuracy improvements using log1p/expm1 and complemented functions
+
+- Tooling and quality
+  - Expanded benchmarks (Criterion) and lightweight statistical test harness
+  - CI with lint/test/bench sanity; performance tracking
+  - Rich documentation with runnable examples and optional notebooks
 
 ## License
 MIT
