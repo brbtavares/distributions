@@ -12,7 +12,7 @@ pub struct Poisson { lambda: f64 }
 
 impl Poisson {
     pub fn new(lambda: f64) -> Result<Self, DistError> {
-        if !(lambda > 0.0 && lambda.is_finite()) { return Err(DistError::InvalidParameter); }
+        if !(lambda.is_finite() && lambda > 0.0) { return Err(DistError::InvalidParameter); }
         Ok(Self { lambda })
     }
     #[inline] pub fn lambda(&self) -> f64 { self.lambda }
@@ -75,7 +75,7 @@ impl Distribution for Poisson {
             // Mode-based symmetric inversion
             let log_p_m = (m as f64) * lambda.ln() - lambda - ln_factorial_u64(m as u64);
             let p_m = log_p_m.exp();
-            if !(p_m > 0.0) {
+            if p_m.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) {
                 // Fallback to small-λ path (pathological underflow)
                 let mut k: i64 = 0;
                 let mut p = self.pmf_rec_start();
@@ -165,7 +165,7 @@ impl Discrete for Poisson {
     fn pmf(&self, x: Self::Value) -> f64 { self.pmf_via_recurrence(x) }
 
     fn inv_cdf(&self, p: f64) -> Self::Value {
-        debug_assert!(p >= 0.0 && p <= 1.0);
+    debug_assert!((0.0..=1.0).contains(&p));
         if p <= 0.0 { return 0; }
         if p >= 1.0 { return i64::MAX; }
         let mut k: i64 = 0;
@@ -193,7 +193,7 @@ fn ln_factorial_u64(n: u64) -> f64 {
     const LN_FACT_SMALL: [f64; 21] = [
         0.0,
         0.0,
-        0.6931471805599453,
+    std::f64::consts::LN_2,
         1.791759469228055,
         3.1780538303479458,
         4.787491742782046,

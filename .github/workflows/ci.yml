@@ -62,5 +62,5 @@ jobs:
       - name: Rustfmt
         run: cargo fmt --all -- --check
 
-      - name: Clippy (warnings only)
-        run: cargo clippy --all-targets --all-features
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings

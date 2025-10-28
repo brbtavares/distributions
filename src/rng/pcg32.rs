@@ -87,6 +87,6 @@ mod tests {
     #[test]
     fn next_f64_in_range() {
         let mut r = Pcg32::seed_from_u64(7);
-        for _ in 0..1000 { let x = r.next_f64(); assert!(x >= 0.0 && x < 1.0); }
+        for _ in 0..1000 { let x = r.next_f64(); assert!((0.0..1.0).contains(&x)); }
     }
 }

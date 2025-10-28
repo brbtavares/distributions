@@ -12,9 +12,9 @@ pub struct Xoshiro256StarStar {
 impl Xoshiro256StarStar {
     /// Seed from a 64-bit value using SplitMix64 to expand into 256 bits.
     pub fn seed_from_u64(seed: u64) -> Self {
-        let mut sm = super::SplitMix64::seed_from_u64(seed);
-        let mut s = [0u64; 4];
-        for i in 0..4 { s[i] = sm.next_u64(); }
+    let mut sm = super::SplitMix64::seed_from_u64(seed);
+    let mut s = [0u64; 4];
+    for slot in &mut s { *slot = sm.next_u64(); }
         // All-zero state is invalid; perturb if detected (extremely unlikely).
         if s == [0,0,0,0] { s[0] = 1; }
         Self { s }
@@ -33,8 +33,8 @@ impl Xoshiro256StarStar {
             0x39abdc4529b1661c,
         ];
         let mut t = [0u64; 4];
-        for j in 0..4 {
-            let mut b = JUMP[j];
+        for &jump in &JUMP {
+            let mut b = jump;
             while b != 0 {
                 if (b & 1) != 0 {
                     t[0] ^= self.s[0];
@@ -58,8 +58,8 @@ impl Xoshiro256StarStar {
             0x39109bb02acbe635,
         ];
         let mut t = [0u64; 4];
-        for j in 0..4 {
-            let mut b = LJUMP[j];
+        for &jump in &LJUMP {
+            let mut b = jump;
             while b != 0 {
                 if (b & 1) != 0 {
                     t[0] ^= self.s[0];
@@ -112,7 +112,7 @@ mod tests {
         let mut r = Xoshiro256StarStar::seed_from_u64(1);
         for _ in 0..1000 {
             let x = r.next_f64();
-            assert!(x >= 0.0 && x < 1.0);
+            assert!((0.0..1.0).contains(&x));
         }
     }
 }
