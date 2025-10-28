@@ -12,7 +12,10 @@ pub struct Pcg32 {
 impl Pcg32 {
     /// Seed with a 64-bit seed and a 64-bit stream selector (will be forced odd).
     pub fn from_seed_and_stream(seed: u64, stream: u64) -> Self {
-        let mut pcg = Self { state: 0, inc: (stream << 1) | 1 };
+        let mut pcg = Self {
+            state: 0,
+            inc: (stream << 1) | 1,
+        };
         pcg.next_u64(); // advance once with inc set
         pcg.state = pcg.state.wrapping_add(seed);
         pcg.next_u64();
@@ -29,7 +32,8 @@ impl Pcg32 {
 
     #[inline]
     fn step(&mut self) {
-        self.state = self.state
+        self.state = self
+            .state
             .wrapping_mul(6364136223846793005)
             .wrapping_add(self.inc);
     }
@@ -69,7 +73,9 @@ mod tests {
     fn deterministic_sequence_from_seed() {
         let mut r1 = Pcg32::seed_from_u64(123);
         let mut r2 = Pcg32::seed_from_u64(123);
-        for _ in 0..32 { assert_eq!(r1.next_u32(), r2.next_u32()); }
+        for _ in 0..32 {
+            assert_eq!(r1.next_u32(), r2.next_u32());
+        }
     }
 
     #[test]
@@ -79,7 +85,10 @@ mod tests {
         // Not guaranteed first output differs, but within a few steps likely diverges
         let mut diff = false;
         for _ in 0..16 {
-            if r1.next_u32() != r2.next_u32() { diff = true; break; }
+            if r1.next_u32() != r2.next_u32() {
+                diff = true;
+                break;
+            }
         }
         assert!(diff);
     }
@@ -87,6 +96,9 @@ mod tests {
     #[test]
     fn next_f64_in_range() {
         let mut r = Pcg32::seed_from_u64(7);
-        for _ in 0..1000 { let x = r.next_f64(); assert!(x >= 0.0 && x < 1.0); }
+        for _ in 0..1000 {
+            let x = r.next_f64();
+            assert!((0.0..1.0).contains(&x));
+        }
     }
 }

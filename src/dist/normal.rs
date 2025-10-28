@@ -1,10 +1,5 @@
-use crate::dist::{
-    Continuous,
-    DistError,
-    Moments,
-    Distribution,
-    };
-use crate::{rng::RngCore, num};
+use crate::dist::{Continuous, DistError, Distribution, Moments};
+use crate::{num, rng::RngCore};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Normal {
@@ -16,13 +11,26 @@ pub struct Normal {
 
 impl Normal {
     pub fn new(mu: f64, sigma: f64) -> Result<Self, DistError> {
-        if !(sigma > 0.0 && sigma.is_finite() && mu.is_finite()) { return Err(DistError::InvalidParameter); }
+        if !(sigma > 0.0 && sigma.is_finite() && mu.is_finite()) {
+            return Err(DistError::InvalidParameter);
+        }
         let inv_sigma = 1.0 / sigma;
         let norm = num::INV_SQRT_2PI * inv_sigma;
-        Ok(Self { mu, sigma, inv_sigma, norm })
+        Ok(Self {
+            mu,
+            sigma,
+            inv_sigma,
+            norm,
+        })
     }
-    #[inline] pub fn mean_param(&self) -> f64 { self.mu }
-    #[inline] pub fn sigma(&self) -> f64 { self.sigma }
+    #[inline]
+    pub fn mean_param(&self) -> f64 {
+        self.mu
+    }
+    #[inline]
+    pub fn sigma(&self) -> f64 {
+        self.sigma
+    }
 }
 
 impl Distribution for Normal {
@@ -40,7 +48,9 @@ impl Distribution for Normal {
             let u1 = 2.0 * rng.next_f64() - 1.0; // (-1,1)
             let u2 = 2.0 * rng.next_f64() - 1.0;
             let s = u1 * u1 + u2 * u2;
-            if s >= 1.0 || s == 0.0 { continue; }
+            if s >= 1.0 || s == 0.0 {
+                continue;
+            }
             let factor = (-2.0 * s.ln() / s).sqrt();
             return self.mu + self.sigma * u1 * factor;
         }
@@ -49,7 +59,9 @@ impl Distribution for Normal {
 
 impl Continuous for Normal {
     fn pdf(&self, x: f64) -> f64 {
-        if !self.in_support(x) { return 0.0; }
+        if !self.in_support(x) {
+            return 0.0;
+        }
         let z = (x - self.mu) * self.inv_sigma;
         self.norm * (-0.5 * z * z).exp()
     }
@@ -59,8 +71,12 @@ impl Continuous for Normal {
 }
 
 impl Moments for Normal {
-    fn mean(&self) -> f64 { self.mu }
-    fn variance(&self) -> f64 { self.sigma * self.sigma }
+    fn mean(&self) -> f64 {
+        self.mu
+    }
+    fn variance(&self) -> f64 {
+        self.sigma * self.sigma
+    }
 }
 
 #[cfg(test)]

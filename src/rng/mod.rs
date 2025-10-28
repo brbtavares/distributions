@@ -12,12 +12,12 @@ pub trait RngCore {
     }
 }
 
-pub mod splitmix64;
-pub mod xoshiro256;
-pub mod xoroshiro128;
 pub mod pcg32;
+pub mod splitmix64;
+pub mod xoroshiro128;
+pub mod xoshiro256;
 
 // Re-export commonly used RNGs for ergonomic access: rng::SplitMix64
+pub use pcg32::Pcg32;
 pub use splitmix64::SplitMix64;
 pub use xoroshiro128::Xoroshiro128PlusPlus;
-pub use pcg32::Pcg32;

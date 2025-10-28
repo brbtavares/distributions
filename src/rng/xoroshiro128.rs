@@ -15,12 +15,16 @@ impl Xoroshiro128PlusPlus {
         let mut sm = super::SplitMix64::seed_from_u64(seed);
         let mut s0 = sm.next_u64();
         let s1 = sm.next_u64();
-        if s0 == 0 && s1 == 0 { s0 = 1; }
+        if s0 == 0 && s1 == 0 {
+            s0 = 1;
+        }
         Self { s0, s1 }
     }
 
     #[inline]
-    fn rotl(x: u64, k: u32) -> u64 { (x << k) | (x >> (64 - k)) }
+    fn rotl(x: u64, k: u32) -> u64 {
+        (x << k) | (x >> (64 - k))
+    }
 
     /// Jump equivalent to 2^64 calls; can be used to generate non-overlapping sequences.
     pub fn jump(&mut self) {
@@ -30,12 +34,16 @@ impl Xoroshiro128PlusPlus {
         for &jump in &JUMP {
             let mut b = jump;
             while b != 0 {
-                if (b & 1) != 0 { s0 ^= self.s0; s1 ^= self.s1; }
+                if (b & 1) != 0 {
+                    s0 ^= self.s0;
+                    s1 ^= self.s1;
+                }
                 let _ = self.next_u64();
                 b >>= 1;
             }
         }
-        self.s0 = s0; self.s1 = s1;
+        self.s0 = s0;
+        self.s1 = s1;
     }
 
     /// Long jump equivalent to 2^96 calls.
@@ -46,12 +54,16 @@ impl Xoroshiro128PlusPlus {
         for &jump in &LJUMP {
             let mut b = jump;
             while b != 0 {
-                if (b & 1) != 0 { s0 ^= self.s0; s1 ^= self.s1; }
+                if (b & 1) != 0 {
+                    s0 ^= self.s0;
+                    s1 ^= self.s1;
+                }
                 let _ = self.next_u64();
                 b >>= 1;
             }
         }
-        self.s0 = s0; self.s1 = s1;
+        self.s0 = s0;
+        self.s1 = s1;
     }
 }
 
@@ -75,7 +87,9 @@ mod tests {
     fn deterministic_sequence() {
         let mut r1 = Xoroshiro128PlusPlus::seed_from_u64(42);
         let mut r2 = Xoroshiro128PlusPlus::seed_from_u64(42);
-        for _ in 0..16 { assert_eq!(r1.next_u64(), r2.next_u64()); }
+        for _ in 0..16 {
+            assert_eq!(r1.next_u64(), r2.next_u64());
+        }
     }
 
     #[test]
@@ -83,7 +97,7 @@ mod tests {
         let mut r = Xoroshiro128PlusPlus::seed_from_u64(7);
         for _ in 0..1000 {
             let x = r.next_f64();
-            assert!(x >= 0.0 && x < 1.0);
+            assert!((0.0..1.0).contains(&x));
         }
     }
 }
