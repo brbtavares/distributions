@@ -23,9 +23,9 @@
 //! assert!((q - 1.95996).abs() < 5e-3);
 //! ```
 
-pub mod rng;
 pub mod dist;
 pub mod num;
+pub mod rng;
 
 // Re-export commonly used traits at crate root for ergonomic imports
-pub use dist::{Continuous, Discrete, Moments, Distribution};
+pub use dist::{Continuous, Discrete, Distribution, Moments};

@@ -16,7 +16,7 @@ pub fn standard_normal_pdf(z: f64) -> f64 {
 
 /// Fast approximation of erf(x) (Abramowitz & Stegun 7.1.26).
 pub fn erf(x: f64) -> f64 {
-// Preserve sign.
+    // Preserve sign.
     let sign = if x < 0.0 { -1.0 } else { 1.0 };
     let x = x.abs();
     let t = 1.0 / (1.0 + 0.3275911 * x);
@@ -75,20 +75,20 @@ pub fn standard_normal_inv_cdf(p: f64) -> f64 {
     if p < P_LOW {
         // Lower tail region
         let q = (-2.0 * p.ln()).sqrt();
-        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5]) /
-            ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
+        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
+            / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
         return -x;
     }
     if p > P_HIGH {
         // Upper tail region
         let q = (-2.0 * (1.0 - p).ln()).sqrt();
-        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5]) /
-            ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
+        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
+            / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
         return x;
     }
     // Central region
     let q = p - 0.5;
     let r = q * q;
-    (((((A[0] * r + A[1]) * r + A[2]) * r + A[3]) * r + A[4]) * r + A[5]) * q /
-        (((((B[0] * r + B[1]) * r + B[2]) * r + B[3]) * r + B[4]) * r + 1.0)
+    (((((A[0] * r + A[1]) * r + A[2]) * r + A[3]) * r + A[4]) * r + A[5]) * q
+        / (((((B[0] * r + B[1]) * r + B[2]) * r + B[3]) * r + B[4]) * r + 1.0)
 }

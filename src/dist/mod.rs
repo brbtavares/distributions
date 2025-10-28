@@ -2,11 +2,11 @@
 //! This module groups all distribution implementations under `dist`.
 use crate::rng;
 
-pub mod uniform;
-pub mod normal;
-pub mod exponential;
 pub mod bernoulli;
+pub mod exponential;
+pub mod normal;
 pub mod poisson;
+pub mod uniform;
 /// Basic moments available for a distribution.
 pub trait Moments {
     fn mean(&self) -> f64;
@@ -44,15 +44,15 @@ pub enum DistError {
 
 #[cfg(test)]
 mod tests {
-    use crate::dist::{normal::Normal, uniform::Uniform};
     use crate::dist::{Continuous, Distribution};
+    use crate::dist::{normal::Normal, uniform::Uniform};
     use crate::rng::SplitMix64;
 
     #[test]
     fn normal_basic() {
         let n = Normal::new(0.0, 1.0).unwrap();
         assert!((n.pdf(0.0) - 0.3989422804014327).abs() < 1e-12);
-    // CDF approximation via erf has typical error ~1e-7; use generous tolerance.
+        // CDF approximation via erf has typical error ~1e-7; use generous tolerance.
         assert!((n.cdf(0.0) - 0.5).abs() < 2e-6);
         let q = n.inv_cdf(0.975);
         assert!((q - 1.959963).abs() < 5e-4);
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn uniform_basic() {
         let u = Uniform::new(2.0, 5.0).unwrap();
-        assert!((u.pdf(3.0) - 1.0/3.0).abs() < 1e-15);
+        assert!((u.pdf(3.0) - 1.0 / 3.0).abs() < 1e-15);
         assert_eq!(u.cdf(1.0), 0.0);
         assert_eq!(u.cdf(6.0), 1.0);
         assert!((u.cdf(2.0) - 0.0).abs() < 1e-15);

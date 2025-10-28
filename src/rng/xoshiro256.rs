@@ -12,16 +12,22 @@ pub struct Xoshiro256StarStar {
 impl Xoshiro256StarStar {
     /// Seed from a 64-bit value using SplitMix64 to expand into 256 bits.
     pub fn seed_from_u64(seed: u64) -> Self {
-    let mut sm = super::SplitMix64::seed_from_u64(seed);
-    let mut s = [0u64; 4];
-    for slot in &mut s { *slot = sm.next_u64(); }
+        let mut sm = super::SplitMix64::seed_from_u64(seed);
+        let mut s = [0u64; 4];
+        for slot in &mut s {
+            *slot = sm.next_u64();
+        }
         // All-zero state is invalid; perturb if detected (extremely unlikely).
-        if s == [0,0,0,0] { s[0] = 1; }
+        if s == [0, 0, 0, 0] {
+            s[0] = 1;
+        }
         Self { s }
     }
 
     #[inline]
-    fn rotl(x: u64, k: u32) -> u64 { (x << k) | (x >> (64 - k)) }
+    fn rotl(x: u64, k: u32) -> u64 {
+        (x << k) | (x >> (64 - k))
+    }
 
     /// Jump equivalent to 2^128 calls; provides 2^128 non-overlapping subsequences.
     /// Useful for parallel streams.

@@ -1,6 +1,6 @@
-use crate::dist::{Discrete, DistError, Moments, Distribution};
-use crate::rng::RngCore;
+use crate::dist::{Discrete, DistError, Distribution, Moments};
 use crate::num;
+use crate::rng::RngCore;
 
 /// Poisson(λ) distribution over non-negative integers.
 ///
@@ -8,14 +8,21 @@ use crate::num;
 /// - Mean = λ
 /// - Var = λ
 #[derive(Debug, Clone, Copy)]
-pub struct Poisson { lambda: f64 }
+pub struct Poisson {
+    lambda: f64,
+}
 
 impl Poisson {
     pub fn new(lambda: f64) -> Result<Self, DistError> {
-        if !(lambda.is_finite() && lambda > 0.0) { return Err(DistError::InvalidParameter); }
+        if !(lambda.is_finite() && lambda > 0.0) {
+            return Err(DistError::InvalidParameter);
+        }
         Ok(Self { lambda })
     }
-    #[inline] pub fn lambda(&self) -> f64 { self.lambda }
+    #[inline]
+    pub fn lambda(&self) -> f64 {
+        self.lambda
+    }
 
     #[inline]
     fn pmf_rec_start(&self) -> f64 {
@@ -26,20 +33,29 @@ impl Poisson {
     /// Compute pmf(k) using recurrence from 0..k: p(k) = p(k-1) * λ / k
     /// Cost O(k). Accurate and avoids factorial overflow.
     fn pmf_via_recurrence(&self, k: i64) -> f64 {
-        if k < 0 { return 0.0; }
+        if k < 0 {
+            return 0.0;
+        }
         let k = k as u64;
         let mut p = self.pmf_rec_start();
-        for i in 1..=k { p *= self.lambda / (i as f64); }
+        for i in 1..=k {
+            p *= self.lambda / (i as f64);
+        }
         p
     }
 
     /// CDF up to k by summing recurrence.
     fn cdf_via_recurrence(&self, k: i64) -> f64 {
-        if k < 0 { return 0.0; }
+        if k < 0 {
+            return 0.0;
+        }
         let k = k as u64;
         let mut p = self.pmf_rec_start();
         let mut acc = p;
-        for i in 1..=k { p *= self.lambda / (i as f64); acc += p; }
+        for i in 1..=k {
+            p *= self.lambda / (i as f64);
+            acc += p;
+        }
         acc
     }
 }
@@ -47,9 +63,13 @@ impl Poisson {
 impl Distribution for Poisson {
     type Value = i64;
 
-    fn cdf(&self, x: Self::Value) -> f64 { self.cdf_via_recurrence(x) }
+    fn cdf(&self, x: Self::Value) -> f64 {
+        self.cdf_via_recurrence(x)
+    }
 
-    fn in_support(&self, x: Self::Value) -> bool { x >= 0 }
+    fn in_support(&self, x: Self::Value) -> bool {
+        x >= 0
+    }
 
     fn sample<R: RngCore>(&self, rng: &mut R) -> Self::Value {
         // Hybrid sampler:
@@ -90,7 +110,9 @@ impl Distribution for Poisson {
             }
             let u = rng.next_f64();
             let mut c = p_m;
-            if u <= c { return m; }
+            if u <= c {
+                return m;
+            }
             let mut left = p_m;
             let mut right = p_m;
             let mut i: i64 = 1;
@@ -98,13 +120,17 @@ impl Distribution for Poisson {
                 if i <= m {
                     left *= (m - (i - 1)) as f64 / lambda; // p(m-(i-1)) -> p(m-i)
                     c += left;
-                    if u <= c { return m - i; }
+                    if u <= c {
+                        return m - i;
+                    }
                 } else {
                     left = 0.0;
                 }
                 right *= lambda / (m + i) as f64; // p(m+(i-1)) -> p(m+i)
                 c += right;
-                if u <= c { return m + i; }
+                if u <= c {
+                    return m + i;
+                }
                 i += 1;
             }
         }
@@ -112,7 +138,9 @@ impl Distribution for Poisson {
         let u_anchor = rng.next_f64();
         let z = num::standard_normal_inv_cdf(u_anchor);
         let mut k0 = (lambda + z * lambda.sqrt()).floor() as i64;
-        if k0 < 0 { k0 = 0; }
+        if k0 < 0 {
+            k0 = 0;
+        }
         let log_p0 = (k0 as f64) * lambda.ln() - lambda - ln_factorial_u64(k0 as u64);
         let p0 = log_p0.exp();
         if !(p0 > 0.0 && p0.is_finite()) {
@@ -121,7 +149,9 @@ impl Distribution for Poisson {
             let p_m = log_p_m.exp();
             let u = rng.next_f64();
             let mut c = p_m;
-            if u <= c { return m; }
+            if u <= c {
+                return m;
+            }
             let mut left = p_m;
             let mut right = p_m;
             let mut i: i64 = 1;
@@ -129,19 +159,25 @@ impl Distribution for Poisson {
                 if i <= m {
                     left *= (m - (i - 1)) as f64 / lambda;
                     c += left;
-                    if u <= c { return m - i; }
+                    if u <= c {
+                        return m - i;
+                    }
                 } else {
                     left = 0.0;
                 }
                 right *= lambda / (m + i) as f64;
                 c += right;
-                if u <= c { return m + i; }
+                if u <= c {
+                    return m + i;
+                }
                 i += 1;
             }
         }
         let u = rng.next_f64();
         let mut c = p0;
-        if u <= c { return k0; }
+        if u <= c {
+            return k0;
+        }
         let mut left = p0;
         let mut right = p0;
         let mut i: i64 = 1;
@@ -149,25 +185,35 @@ impl Distribution for Poisson {
             if i <= k0 {
                 left *= (k0 - (i - 1)) as f64 / lambda;
                 c += left;
-                if u <= c { return k0 - i; }
+                if u <= c {
+                    return k0 - i;
+                }
             } else {
                 left = 0.0;
             }
             right *= lambda / (k0 + i) as f64;
             c += right;
-            if u <= c { return k0 + i; }
+            if u <= c {
+                return k0 + i;
+            }
             i += 1;
         }
     }
 }
 
 impl Discrete for Poisson {
-    fn pmf(&self, x: Self::Value) -> f64 { self.pmf_via_recurrence(x) }
+    fn pmf(&self, x: Self::Value) -> f64 {
+        self.pmf_via_recurrence(x)
+    }
 
     fn inv_cdf(&self, p: f64) -> Self::Value {
-    debug_assert!((0.0..=1.0).contains(&p));
-        if p <= 0.0 { return 0; }
-        if p >= 1.0 { return i64::MAX; }
+        debug_assert!((0.0..=1.0).contains(&p));
+        if p <= 0.0 {
+            return 0;
+        }
+        if p >= 1.0 {
+            return i64::MAX;
+        }
         let mut k: i64 = 0;
         let mut pk = self.pmf_rec_start();
         let mut acc = pk;
@@ -181,8 +227,12 @@ impl Discrete for Poisson {
 }
 
 impl Moments for Poisson {
-    fn mean(&self) -> f64 { self.lambda }
-    fn variance(&self) -> f64 { self.lambda }
+    fn mean(&self) -> f64 {
+        self.lambda
+    }
+    fn variance(&self) -> f64 {
+        self.lambda
+    }
 }
 
 // -------- Internal helpers for large-λ sampling --------
@@ -193,7 +243,7 @@ fn ln_factorial_u64(n: u64) -> f64 {
     const LN_FACT_SMALL: [f64; 21] = [
         0.0,
         0.0,
-    std::f64::consts::LN_2,
+        std::f64::consts::LN_2,
         1.791759469228055,
         3.1780538303479458,
         4.787491742782046,
@@ -213,14 +263,17 @@ fn ln_factorial_u64(n: u64) -> f64 {
         39.339884187199495,
         42.335616460753485,
     ];
-    if n <= 20 { return LN_FACT_SMALL[n as usize]; }
+    if n <= 20 {
+        return LN_FACT_SMALL[n as usize];
+    }
     // Stirling with 1/(12n) - 1/(360n^3) + 1/(1260 n^5) correction
     let x = n as f64;
     let inv = 1.0 / x;
     let inv2 = inv * inv;
     let inv3 = inv2 * inv;
     let inv5 = inv3 * inv2;
-    x * x.ln() - x + 0.5 * ((2.0 * std::f64::consts::PI * x).ln()) + (inv / 12.0) - (inv3 / 360.0) + (inv5 / 1260.0)
+    x * x.ln() - x + 0.5 * ((2.0 * std::f64::consts::PI * x).ln()) + (inv / 12.0) - (inv3 / 360.0)
+        + (inv5 / 1260.0)
 }
 
 #[cfg(test)]
@@ -251,7 +304,9 @@ mod tests {
         for &prob in &ps {
             let k = pois.inv_cdf(prob);
             assert!(pois.cdf(k) >= prob - 1e-15);
-            if k > 0 { assert!(pois.cdf(k - 1) <= prob + 1e-15); }
+            if k > 0 {
+                assert!(pois.cdf(k - 1) <= prob + 1e-15);
+            }
         }
     }
 
