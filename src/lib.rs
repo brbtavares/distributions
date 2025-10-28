@@ -11,7 +11,7 @@
 //!
 //! Quick examples:
 //! ```
-//! use distributions::{rng::SplitMix64, dist::normal::Normal, Continuous, Distribution};
+//! use probability_rs::{rng::SplitMix64, dist::normal::Normal, Continuous, Distribution};
 //! let normal = Normal::new(0.0, 1.0).unwrap();
 //! let mut rng = SplitMix64::seed_from_u64(123);
 //! let x = normal.sample(&mut rng);

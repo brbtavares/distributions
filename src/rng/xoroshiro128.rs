@@ -14,7 +14,7 @@ impl Xoroshiro128PlusPlus {
         // Use SplitMix64 to expand into two 64-bit state values
         let mut sm = super::SplitMix64::seed_from_u64(seed);
         let mut s0 = sm.next_u64();
-        let mut s1 = sm.next_u64();
+        let s1 = sm.next_u64();
         if s0 == 0 && s1 == 0 { s0 = 1; }
         Self { s0, s1 }
     }

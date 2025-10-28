@@ -1,4 +1,4 @@
-# distributions
+# probability-rs
 
 A small, dependency-free Rust library for probability distributions focused on numerical clarity, clean APIs, and reproducible random sampling.
 
@@ -24,14 +24,14 @@ Add to your workspace as a path dependency or use locally:
 ```toml
 # Cargo.toml
 [dependencies]
-distributions = { path = "./distributions" }
+probability-rs = { path = "./probability-rs" }
 ```
 
 Example: sampling and basic queries
 
 ```rust
-use distributions::dist::{normal, uniform, exponential, bernoulli, poisson, Distribution, Continuous, Discrete, Moments};
-use distributions::rng::SplitMix64;
+use probability_rs::dist::{normal, uniform, exponential, bernoulli, poisson, Distribution, Continuous, Discrete, Moments};
+use probability_rs::rng::SplitMix64;
 
 fn main() {
     let normal = normal::Normal::new(0.0, 1.0).unwrap();
@@ -79,7 +79,7 @@ This crate ships a few small, non-cryptographic PRNGs with a common trait `rng::
   - Pros: tiny, very fast, good bit diffusion; great seed expander.
   - Cons: not the strongest statistical quality for long streams compared to xoshiro/pcg.
   - Use:
-    - `use distributions::rng::SplitMix64;`
+  - `use probability_rs::rng::SplitMix64;`
     - `let mut rng = SplitMix64::seed_from_u64(123);`
 
 - Xoroshiro128++
@@ -87,7 +87,7 @@ This crate ships a few small, non-cryptographic PRNGs with a common trait `rng::
   - Pros: excellent speed, good quality in practice for 64-bit outputs.
   - Cons: period 2^128−1; for massive parallel use, consider jump/long_jump to split streams.
   - Use:
-    - `use distributions::rng::Xoroshiro128PlusPlus;`
+  - `use probability_rs::rng::Xoroshiro128PlusPlus;`
     - `let mut rng = Xoroshiro128PlusPlus::seed_from_u64(123);`
 
 - Xoshiro256**
@@ -95,7 +95,7 @@ This crate ships a few small, non-cryptographic PRNGs with a common trait `rng::
   - Pros: period 2^256−1, excellent statistical properties, jump/long_jump available.
   - Cons: slightly larger state than Xoroshiro128++.
   - Use:
-    - `use distributions::rng::xoshiro256::Xoshiro256StarStar;`
+  - `use probability_rs::rng::xoshiro256::Xoshiro256StarStar;`
     - `let mut rng = Xoshiro256StarStar::seed_from_u64(123);`
 
 - PCG32 (XSH RR 64/32)
@@ -103,7 +103,7 @@ This crate ships a few small, non-cryptographic PRNGs with a common trait `rng::
   - Pros: configurable streams via `from_seed_and_stream(seed, stream)`; great distribution.
   - Cons: 32-bit output per step (we combine two for 64-bit).
   - Use:
-    - `use distributions::rng::Pcg32;`
+  - `use probability_rs::rng::Pcg32;`
     - `let mut rng = Pcg32::seed_from_u64(123);`
     - or `let mut rng = Pcg32::from_seed_and_stream(STATE, STREAM_ID);`
 

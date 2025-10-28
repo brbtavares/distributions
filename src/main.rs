@@ -1,5 +1,5 @@
-use distributions::dist::{normal, uniform, exponential, bernoulli, poisson, Discrete, Continuous, Moments, Distribution};
-use distributions::rng::SplitMix64;
+use probability_rs::dist::{normal, uniform, exponential, bernoulli, poisson, Discrete, Continuous, Moments, Distribution};
+use probability_rs::rng::SplitMix64;
 
 fn main() {
     let normal = normal::Normal::new(0.0, 1.0).unwrap();

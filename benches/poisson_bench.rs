@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion, BatchSize, black_box};
-use distributions::dist::poisson::Poisson;
-use distributions::rng::SplitMix64;
-use distributions::Distribution; // bring trait for .sample
+use probability_rs::dist::poisson::Poisson;
+use probability_rs::rng::SplitMix64;
+use probability_rs::Distribution; // bring trait for .sample
 
 fn bench_poisson_small_lambda(c: &mut Criterion) {
     let pois = Poisson::new(2.5).unwrap();
