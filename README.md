@@ -70,10 +70,55 @@ cargo test --all
 - `Moments`: `mean() -> f64`, `variance() -> f64`
 - RNG: `rng::RngCore`, `rng::SplitMix64`
 
+## RNGs: picking the right generator
+
+This crate ships a few small, non-cryptographic PRNGs with a common trait `rng::RngCore`.
+
+- SplitMix64
+  - Best for: seeding other RNGs, quick-and-simple deterministic tests.
+  - Pros: tiny, very fast, good bit diffusion; great seed expander.
+  - Cons: not the strongest statistical quality for long streams compared to xoshiro/pcg.
+  - Use:
+    - `use distributions::rng::SplitMix64;`
+    - `let mut rng = SplitMix64::seed_from_u64(123);`
+
+- Xoroshiro128++
+  - Best for: fast simulations with small memory footprint (128-bit state).
+  - Pros: excellent speed, good quality in practice for 64-bit outputs.
+  - Cons: period 2^128−1; for massive parallel use, consider jump/long_jump to split streams.
+  - Use:
+    - `use distributions::rng::Xoroshiro128PlusPlus;`
+    - `let mut rng = Xoroshiro128PlusPlus::seed_from_u64(123);`
+
+- Xoshiro256**
+  - Best for: general-purpose high-quality streams (256-bit state).
+  - Pros: period 2^256−1, excellent statistical properties, jump/long_jump available.
+  - Cons: slightly larger state than Xoroshiro128++.
+  - Use:
+    - `use distributions::rng::xoshiro256::Xoshiro256StarStar;`
+    - `let mut rng = Xoshiro256StarStar::seed_from_u64(123);`
+
+- PCG32 (XSH RR 64/32)
+  - Best for: small-state RNG with good 32-bit outputs, reproducible parallel streams.
+  - Pros: configurable streams via `from_seed_and_stream(seed, stream)`; great distribution.
+  - Cons: 32-bit output per step (we combine two for 64-bit).
+  - Use:
+    - `use distributions::rng::Pcg32;`
+    - `let mut rng = Pcg32::seed_from_u64(123);`
+    - or `let mut rng = Pcg32::from_seed_and_stream(STATE, STREAM_ID);`
+
+Guidelines by scenario:
+- Reproducible tests, quick examples: SplitMix64
+- High-throughput simulations (low memory): Xoroshiro128++
+- High-quality general-purpose streams: Xoshiro256**
+- Many independent parallel streams with small state: PCG32 (use different `stream`)
+
+Note: none of these RNGs are cryptographic. For security-sensitive contexts, use a proper CSPRNG.
+
 ## Numerical notes
 
 - Normal CDF/quantile use classic approximations (erf and Acklam’s probit). Tolerances in tests reflect expected approximation error.
-- Poisson sampling currently uses inversion by cumulative sum. For large λ, more efficient algorithms (PTRS) can be added.
+- Poisson sampling uses a hybrid approach (inversion, mode-based, and quantile-anchored) depending on λ. PTRS may be added later for λ≫1.
 
 ## Benchmarks
 
