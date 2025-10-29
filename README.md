@@ -10,7 +10,7 @@
 A small, dependency-free Rust library for probability distributions focused on numerical clarity, clean APIs, and reproducible random sampling.
 
 Current scope:
-- Internal RNG: SplitMix64 (non-cryptographic)
+- Internal RNGs (non-cryptographic): SplitMix64, Xoroshiro128++, Xoshiro256**, PCG32
 - Traits: `Distribution`, `Continuous`, `Discrete`, `Moments`
 - Distributions:
   - Continuous: Uniform, Normal, Exponential
