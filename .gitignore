@@ -55,6 +55,10 @@ lcov.info
 # Arquivos de benchmarking gerados manualmente
 bench_output/
 
+# Coverage testing
+/node_modules/
+*.json
+
 # === NÃO IGNORADO DE PROPÓSITO ===
 # Cargo.lock: manter (projeto possui binário main). Remova abaixo se preferir não versionar para lib pura.
 # !Cargo.lock

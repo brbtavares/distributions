@@ -42,10 +42,15 @@ impl Moments for Bernoulli {
 mod tests {
     use super::*;
     #[test]
-    fn pmf_cdf() {
+    fn pmf() {
         let b = Bernoulli::new(0.3).unwrap();
         assert!((b.pmf(1) - 0.3).abs() < 1e-15);
         assert!((b.pmf(0) - 0.7).abs() < 1e-15);
+    }
+
+    #[test]
+    fn cdf() {
+        let b = Bernoulli::new(0.3).unwrap();
         assert!((b.cdf(0) - 0.7).abs() < 1e-15);
         assert!((b.cdf(1) - 1.0).abs() < 1e-15);
     }
