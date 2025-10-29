@@ -1,5 +1,10 @@
 # probability-rs
 
+[![CI](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml)
+[![Crates.io](https://img.shields.io/crates/v/probability-rs.svg)](https://crates.io/crates/probability-rs)
+[![docs.rs](https://docs.rs/probability-rs/badge.svg)](https://docs.rs/probability-rs)
+[![codecov](https://codecov.io/gh/brbtavares/probability-rs/graph/badge.svg?token=GTMW85PL6N)](https://codecov.io/gh/brbtavares/probability-rs)
+
 A small, dependency-free Rust library for probability distributions focused on numerical clarity, clean APIs, and reproducible random sampling.
 
 Current scope:
