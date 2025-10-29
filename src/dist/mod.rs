@@ -4,6 +4,12 @@ use crate::rng;
 
 pub mod bernoulli;
 pub mod exponential;
+pub mod geometric;
+pub mod binomial;
+pub mod lognormal;
+pub mod gamma;
+pub mod beta;
+pub mod chisquared;
 pub mod normal;
 pub mod poisson;
 pub mod uniform;
