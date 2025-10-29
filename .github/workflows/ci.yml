@@ -47,6 +47,11 @@ jobs:
       - name: Test
         run: cargo test --all --verbose
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   lint:
     name: Lint (fmt + clippy)
     runs-on: ubuntu-latest
