@@ -1,6 +1,6 @@
 use crate::dist::{Continuous, DistError, Distribution, Moments};
-use crate::rng::RngCore;
 use crate::num;
+use crate::rng::RngCore;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Gamma {
@@ -17,23 +17,40 @@ impl Gamma {
         }
         let inv_scale = 1.0 / scale;
         let ln_gamma_shape = ln_gamma(shape);
-        Ok(Self { shape, scale, inv_scale, ln_gamma_shape })
+        Ok(Self {
+            shape,
+            scale,
+            inv_scale,
+            ln_gamma_shape,
+        })
     }
-    #[inline] pub fn shape(&self) -> f64 { self.shape }
-    #[inline] pub fn scale(&self) -> f64 { self.scale }
+    #[inline]
+    pub fn shape(&self) -> f64 {
+        self.shape
+    }
+    #[inline]
+    pub fn scale(&self) -> f64 {
+        self.scale
+    }
 
     #[inline]
-    fn x_to_z(&self, x: f64) -> f64 { x * self.inv_scale }
+    fn x_to_z(&self, x: f64) -> f64 {
+        x * self.inv_scale
+    }
 }
 
 impl Distribution for Gamma {
     type Value = f64;
     fn cdf(&self, x: f64) -> f64 {
-        if x <= 0.0 || !x.is_finite() { return 0.0; }
+        if x <= 0.0 || !x.is_finite() {
+            return 0.0;
+        }
         let z = self.x_to_z(x);
         reg_lower_gamma(self.shape, z)
     }
-    fn in_support(&self, x: f64) -> bool { x >= 0.0 && x.is_finite() }
+    fn in_support(&self, x: f64) -> bool {
+        x >= 0.0 && x.is_finite()
+    }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
         // Marsaglia & Tsang (2000) method
         let k = self.shape;
@@ -44,12 +61,18 @@ impl Distribution for Gamma {
             loop {
                 let x = standard_normal(rng);
                 let v = 1.0 + c * x;
-                if v <= 0.0 { continue; }
+                if v <= 0.0 {
+                    continue;
+                }
                 let v3 = v * v * v;
                 let u = rng.next_f64();
                 // Squeeze and acceptance
-                if u < 1.0 - 0.0331 * x * x * x * x { return self.scale * d * v3; }
-                if u.ln() < 0.5 * x * x + d * (1.0 - v3 + (v3).ln()) { return self.scale * d * v3; }
+                if u < 1.0 - 0.0331 * x * x * x * x {
+                    return self.scale * d * v3;
+                }
+                if u.ln() < 0.5 * x * x + d * (1.0 - v3 + (v3).ln()) {
+                    return self.scale * d * v3;
+                }
             }
         } else {
             // Use boost: sample gamma(k+1) then scale by U^{1/k}
@@ -63,9 +86,13 @@ impl Distribution for Gamma {
 
 impl Continuous for Gamma {
     fn pdf(&self, x: f64) -> f64 {
-        if !self.in_support(x) { return 0.0; }
+        if !self.in_support(x) {
+            return 0.0;
+        }
         let z = self.x_to_z(x);
-        ((self.shape - 1.0) * z.ln() - z - self.ln_gamma_shape - self.shape * self.inv_scale.ln()).exp() * self.inv_scale
+        ((self.shape - 1.0) * z.ln() - z - self.ln_gamma_shape - self.shape * self.inv_scale.ln())
+            .exp()
+            * self.inv_scale
     }
     fn inv_cdf(&self, p: f64) -> f64 {
         debug_assert!(p > 0.0 && p < 1.0);
@@ -73,15 +100,23 @@ impl Continuous for Gamma {
         let mean = self.shape * self.scale;
         let std = (self.shape).sqrt() * self.scale;
         let mut x = mean + std * num::standard_normal_inv_cdf(p);
-        if x <= 0.0 { x = mean.max(1e-12); }
+        if x <= 0.0 {
+            x = mean.max(1e-12);
+        }
         // Bracket and refine with safeguarded Newton
         let mut lo = 0.0_f64;
         let mut hi = mean.max(x) * 2.0 + 10.0 * self.scale;
         for _ in 0..50 {
             let fx = self.cdf(x) - p;
-            if fx.abs() < 1e-10 { break; }
+            if fx.abs() < 1e-10 {
+                break;
+            }
             // Update bracket
-            if fx < 0.0 { lo = x; } else { hi = x; }
+            if fx < 0.0 {
+                lo = x;
+            } else {
+                hi = x;
+            }
             // Newton step
             let dfx = self.pdf(x).max(1e-300);
             let mut x_new = x - fx / dfx;
@@ -95,8 +130,12 @@ impl Continuous for Gamma {
 }
 
 impl Moments for Gamma {
-    fn mean(&self) -> f64 { self.shape * self.scale }
-    fn variance(&self) -> f64 { self.shape * self.scale * self.scale }
+    fn mean(&self) -> f64 {
+        self.shape * self.scale
+    }
+    fn variance(&self) -> f64 {
+        self.shape * self.scale * self.scale
+    }
 }
 
 // --- helpers ---
@@ -107,7 +146,9 @@ fn standard_normal<R: RngCore>(rng: &mut R) -> f64 {
         let u1 = 2.0 * rng.next_f64() - 1.0;
         let u2 = 2.0 * rng.next_f64() - 1.0;
         let s = u1 * u1 + u2 * u2;
-        if s == 0.0 || s >= 1.0 { continue; }
+        if s == 0.0 || s >= 1.0 {
+            continue;
+        }
         let m = (-2.0 * s.ln() / s).sqrt();
         return u1 * m;
     }
@@ -128,7 +169,9 @@ pub(crate) fn ln_gamma(z: f64) -> f64 {
         1.5056327351493116e-7,
     ];
     if z < 0.5 {
-        return std::f64::consts::PI.ln() - (std::f64::consts::PI * z).sin().ln() - ln_gamma(1.0 - z);
+        return std::f64::consts::PI.ln()
+            - (std::f64::consts::PI * z).sin().ln()
+            - ln_gamma(1.0 - z);
     }
     let z = z - 1.0;
     let mut x = COF[0];
@@ -141,7 +184,9 @@ pub(crate) fn ln_gamma(z: f64) -> f64 {
 
 // Regularized lower incomplete gamma P(a,x)
 fn reg_lower_gamma(a: f64, x: f64) -> f64 {
-    if x <= 0.0 { return 0.0; }
+    if x <= 0.0 {
+        return 0.0;
+    }
     if x < a + 1.0 {
         // series
         let mut sum = 1.0 / a;
@@ -151,7 +196,9 @@ fn reg_lower_gamma(a: f64, x: f64) -> f64 {
             ap += 1.0;
             del *= x / ap;
             sum += del;
-            if del.abs() < sum.abs() * 1e-14 { break; }
+            if del.abs() < sum.abs() * 1e-14 {
+                break;
+            }
         }
         (sum * (-x + a * x.ln() - ln_gamma(a))).exp()
     } else {
@@ -164,13 +211,19 @@ fn reg_lower_gamma(a: f64, x: f64) -> f64 {
             let an = -(i as f64) * (i as f64 - a);
             b0 += 2.0;
             d = an * d + b0;
-            if d.abs() < 1e-30 { d = 1e-30; }
+            if d.abs() < 1e-30 {
+                d = 1e-30;
+            }
             c = b0 + an / c;
-            if c.abs() < 1e-30 { c = 1e-30; }
+            if c.abs() < 1e-30 {
+                c = 1e-30;
+            }
             d = 1.0 / d;
             let del = d * c;
             h *= del;
-            if (del - 1.0).abs() < 1e-14 { break; }
+            if (del - 1.0).abs() < 1e-14 {
+                break;
+            }
         }
         1.0 - (h * (-x + a * x.ln() - ln_gamma(a))).exp()
     }
