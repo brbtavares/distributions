@@ -1,9 +1,16 @@
 # probability-rs
 
+[![CI](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml)
+[![Crates.io](https://img.shields.io/crates/v/probability-rs.svg)](https://crates.io/crates/probability-rs)
+[![docs.rs](https://docs.rs/probability-rs/badge.svg)](https://docs.rs/probability-rs)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MSRV](https://img.shields.io/badge/MSRV-1.85%2B-informational)](Cargo.toml)
+[![codecov](https://codecov.io/gh/brbtavares/probability-rs/graph/badge.svg?token=GTMW85PL6N)](https://codecov.io/gh/brbtavares/probability-rs)
+
 A small, dependency-free Rust library for probability distributions focused on numerical clarity, clean APIs, and reproducible random sampling.
 
 Current scope:
-- Internal RNG: SplitMix64 (non-cryptographic)
+- Internal RNGs (non-cryptographic): SplitMix64, Xoroshiro128++, Xoshiro256**, PCG32
 - Traits: `Distribution`, `Continuous`, `Discrete`, `Moments`
 - Distributions:
   - Continuous: Uniform, Normal, Exponential

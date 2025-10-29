@@ -1,13 +1,12 @@
-/// Frequently used numerical constants.
+//! Frequently used numerical constants.
 
-pub const SQRT_2: f64 = 1.41421356237309504880168872420969808_f64;
-pub const INV_SQRT_2: f64 = 1.0 / SQRT_2;
-pub const SQRT_2PI: f64 = 2.50662827463100050241576528481104525_f64; // sqrt(2*pi)
+pub const SQRT_2: f64 = std::f64::consts::SQRT_2;
+pub const INV_SQRT_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
+pub const SQRT_2PI: f64 = 2.506_628_274_631_000_7_f64; // sqrt(2*pi)
 pub const INV_SQRT_2PI: f64 = 1.0 / SQRT_2PI; // 1 / sqrt(2*pi)
-pub const LN_2: f64 = 0.69314718055994530941723212145817657_f64;
+pub const LN_2: f64 = std::f64::consts::LN_2;
 
-
-/// Internal math helper functions.
+// Internal math helper functions.
 
 /// Standard normal PDF.
 #[inline]
@@ -17,7 +16,7 @@ pub fn standard_normal_pdf(z: f64) -> f64 {
 
 /// Fast approximation of erf(x) (Abramowitz & Stegun 7.1.26).
 pub fn erf(x: f64) -> f64 {
-// Preserve sign.
+    // Preserve sign.
     let sign = if x < 0.0 { -1.0 } else { 1.0 };
     let x = x.abs();
     let t = 1.0 / (1.0 + 0.3275911 * x);
@@ -37,10 +36,11 @@ pub fn standard_normal_cdf(z: f64) -> f64 {
 
 /// Standard normal inverse CDF (probit) using Peter J. Acklam's rational approximation.
 /// Typical absolute error < 4.5e-4 in double precision.
+#[allow(clippy::excessive_precision)]
 pub fn standard_normal_inv_cdf(p: f64) -> f64 {
-assert!(p > 0.0 && p < 1.0, "p must be in (0,1)");
+    assert!(p > 0.0 && p < 1.0, "p must be in (0,1)");
 
-// Coefficients (Acklam 2003). See public documentation.
+    // Coefficients (Acklam 2003). See public documentation.
     const A: [f64; 6] = [
         -3.969683028665376e+01,
         2.209460984245205e+02,
@@ -72,25 +72,23 @@ assert!(p > 0.0 && p < 1.0, "p must be in (0,1)");
     ];
     const P_LOW: f64 = 0.02425;
     const P_HIGH: f64 = 1.0 - P_LOW;
-
-    let q: f64;
-    let r: f64;
-    let x: f64;
-if p < P_LOW { // Lower tail region
-        q = (-2.0 * p.ln()).sqrt();
-        x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5]) /
-            ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
+    if p < P_LOW {
+        // Lower tail region
+        let q = (-2.0 * p.ln()).sqrt();
+        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
+            / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
         return -x;
     }
-if p > P_HIGH { // Upper tail region
-        q = (-2.0 * (1.0 - p).ln()).sqrt();
-        x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5]) /
-            ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
+    if p > P_HIGH {
+        // Upper tail region
+        let q = (-2.0 * (1.0 - p).ln()).sqrt();
+        let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
+            / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
         return x;
     }
-// Central region
-    q = p - 0.5;
-    r = q * q;
-    (((((A[0] * r + A[1]) * r + A[2]) * r + A[3]) * r + A[4]) * r + A[5]) * q /
-        (((((B[0] * r + B[1]) * r + B[2]) * r + B[3]) * r + B[4]) * r + 1.0)
+    // Central region
+    let q = p - 0.5;
+    let r = q * q;
+    (((((A[0] * r + A[1]) * r + A[2]) * r + A[3]) * r + A[4]) * r + A[5]) * q
+        / (((((B[0] * r + B[1]) * r + B[2]) * r + B[3]) * r + B[4]) * r + 1.0)
 }

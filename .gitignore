@@ -55,7 +55,7 @@ lcov.info
 # Arquivos de benchmarking gerados manualmente
 bench_output/
 
-# Coverage testing
+# Codecov files (Jest)
 /node_modules/
 *.json
 
