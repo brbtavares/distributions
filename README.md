@@ -13,8 +13,8 @@ Current scope:
 - Internal RNGs (non-cryptographic): SplitMix64, Xoroshiro128++, Xoshiro256**, PCG32
 - Traits: `Distribution`, `Continuous`, `Discrete`, `Moments`
 - Distributions:
-  - Continuous: Uniform, Normal, Exponential
-  - Discrete: Bernoulli, Poisson
+  - Continuous: Uniform, Normal, Exponential, Lognormal, Gamma, Chi-squared
+  - Discrete: Bernoulli, Poisson, Geometric, Binomial
 
 ## Why
 - No external dependencies
@@ -140,7 +140,7 @@ The included benchmark compares Poisson sampling for small (Î»=2.5) and large (Î
 ## Roadmap
 
 - Distributions and structure
-  - More distributions: Gamma, Beta, Binomial, Geometric, Lognormal, Chi-squared, Dirichlet, Multivariate Normal
+  - More distributions: Dirichlet, Multivariate Normal
   - Truncation and affine transforms (shift/scale) as generic wrappers
   - Mixture models (finite mixtures) with EM fitting
 
