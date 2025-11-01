@@ -25,3 +25,7 @@ criterion = "0.5"
 [[bench]]
 name = "poisson_bench"
 harness = false
+
+[lints.clippy]
+# Allow literals with more precision than needed; we use explicit constants.
+excessive_precision = "allow"

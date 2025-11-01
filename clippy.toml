@@ -1,0 +1,7 @@
+# Clippy configuration file
+#
+# Lint levels are configured in Cargo.toml (Rust 1.85+) via the [lints.clippy] table.
+# We allow `clippy::excessive_precision` there to avoid warnings for precise constants.
+#
+# This file remains available for options that are only configurable via clippy.toml
+# (e.g., various thresholds). Add such options below as needed.
