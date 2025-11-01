@@ -52,15 +52,15 @@ impl Moments for ChiSquared {
     fn variance(&self) -> f64 {
         2.0 * self.v
     }
-        fn skewness(&self) -> f64 {
-            (8.0 / self.v).sqrt()
-        }
-        fn kurtosis(&self) -> f64 {
-            12.0 / self.v
-        }
-        fn entropy(&self) -> f64 {
-            self.gamma.entropy()
-        }
+    fn skewness(&self) -> f64 {
+        (8.0 / self.v).sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        12.0 / self.v
+    }
+    fn entropy(&self) -> f64 {
+        self.gamma.entropy()
+    }
 }
 
 #[cfg(test)]

@@ -66,20 +66,22 @@ impl Moments for LogNormal {
         let s2 = self.sigma * self.sigma;
         ((2.0 * s2).exp() - (s2).exp()) * (self.mu + s2).exp()
     }
-        fn skewness(&self) -> f64 {
-            let s2 = self.sigma * self.sigma;
-            let es2 = s2.exp();
-            (es2 + 2.0) * (es2 - 1.0).sqrt()
-        }
-        fn kurtosis(&self) -> f64 {
-            let s2 = self.sigma * self.sigma;
-            let es2 = s2.exp();
-            es2.powi(4) + 2.0 * es2.powi(3) + 3.0 * es2.powi(2) - 6.0
-        }
-        fn entropy(&self) -> f64 {
-            // H = mu + 0.5 * ln(2π e σ^2)
-            self.mu + 0.5 * (2.0 * std::f64::consts::PI * std::f64::consts::E * self.sigma * self.sigma).ln()
-        }
+    fn skewness(&self) -> f64 {
+        let s2 = self.sigma * self.sigma;
+        let es2 = s2.exp();
+        (es2 + 2.0) * (es2 - 1.0).sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        let s2 = self.sigma * self.sigma;
+        let es2 = s2.exp();
+        es2.powi(4) + 2.0 * es2.powi(3) + 3.0 * es2.powi(2) - 6.0
+    }
+    fn entropy(&self) -> f64 {
+        // H = mu + 0.5 * ln(2π e σ^2)
+        self.mu
+            + 0.5
+                * (2.0 * std::f64::consts::PI * std::f64::consts::E * self.sigma * self.sigma).ln()
+    }
 }
 
 #[cfg(test)]
@@ -97,7 +99,7 @@ mod tests {
         let s2: f64 = 1.0;
         let es2: f64 = s2.exp();
         let skew = (es2 + 2.0) * (es2 - 1.0).sqrt();
-        let kurt = es2.powi(4) + 2.0*es2.powi(3) + 3.0*es2.powi(2) - 6.0;
+        let kurt = es2.powi(4) + 2.0 * es2.powi(3) + 3.0 * es2.powi(2) - 6.0;
         assert!((ln.skewness() - skew).abs() < 1e-12);
         assert!((ln.kurtosis() - kurt).abs() < 1e-12);
     }

@@ -123,7 +123,9 @@ impl Moments for Binomial {
         let mut h = 0.0;
         for k in 0..=self.n {
             let pk = self.pmf_recurrence(k);
-            if pk > 0.0 { h -= pk * pk.ln(); }
+            if pk > 0.0 {
+                h -= pk * pk.ln();
+            }
         }
         h
     }
@@ -149,9 +151,11 @@ mod tests {
     #[test]
     fn moments_higher() {
         let b = Binomial::new(10, 0.3).unwrap();
-        let n: f64 = 10.0; let p: f64 = 0.3; let q: f64 = 0.7;
-        let skew = (1.0 - 2.0*p)/((n*p*q).sqrt());
-        let kurt = (1.0 - 6.0*p*q)/(n*p*q);
+        let n: f64 = 10.0;
+        let p: f64 = 0.3;
+        let q: f64 = 0.7;
+        let skew = (1.0 - 2.0 * p) / ((n * p * q).sqrt());
+        let kurt = (1.0 - 6.0 * p * q) / (n * p * q);
         assert!((b.skewness() - skew).abs() < 1e-12);
         assert!((b.kurtosis() - kurt).abs() < 1e-12);
     }

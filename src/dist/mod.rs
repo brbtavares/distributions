@@ -25,12 +25,13 @@ pub trait Moments {
     /// Excess kurtosis (kurtosis − 3).
     fn kurtosis(&self) -> f64;
     /// Full kurtosis (i.e., excess kurtosis + 3).
-    fn kurtosis_full(&self) -> f64 { self.kurtosis() + 3.0 }
+    fn kurtosis_full(&self) -> f64 {
+        self.kurtosis() + 3.0
+    }
     /// Entropy: Shannon (discrete) or differential entropy (continuous), in nats.
     fn entropy(&self) -> f64;
-    
 }
- 
+
 /// Basic trait for distributions.
 pub trait Distribution {
     type Value;

@@ -58,9 +58,15 @@ impl Moments for Exponential {
     fn variance(&self) -> f64 {
         1.0 / (self.lambda * self.lambda)
     }
-    fn skewness(&self) -> f64 { 2.0 }
-    fn kurtosis(&self) -> f64 { 6.0 }
-    fn entropy(&self) -> f64 { 1.0 - self.lambda.ln() }
+    fn skewness(&self) -> f64 {
+        2.0
+    }
+    fn kurtosis(&self) -> f64 {
+        6.0
+    }
+    fn entropy(&self) -> f64 {
+        1.0 - self.lambda.ln()
+    }
 }
 
 #[cfg(test)]

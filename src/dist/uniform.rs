@@ -66,9 +66,15 @@ impl Moments for Uniform {
     fn variance(&self) -> f64 {
         (self.b - self.a).powi(2) / 12.0
     }
-    fn skewness(&self) -> f64 { 0.0 }
-    fn kurtosis(&self) -> f64 { -6.0 / 5.0 }
-    fn entropy(&self) -> f64 { (self.b - self.a).ln() }
+    fn skewness(&self) -> f64 {
+        0.0
+    }
+    fn kurtosis(&self) -> f64 {
+        -6.0 / 5.0
+    }
+    fn entropy(&self) -> f64 {
+        (self.b - self.a).ln()
+    }
 }
 
 #[cfg(test)]
@@ -92,7 +98,7 @@ mod tests {
     fn moments_higher() {
         let u = Uniform::new(-1.0, 3.0).unwrap();
         assert_eq!(u.skewness(), 0.0);
-        assert!((u.kurtosis() + 6.0/5.0).abs() < 1e-15);
+        assert!((u.kurtosis() + 6.0 / 5.0).abs() < 1e-15);
     }
 
     #[test]

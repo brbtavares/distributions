@@ -77,8 +77,12 @@ impl Moments for Normal {
     fn variance(&self) -> f64 {
         self.sigma * self.sigma
     }
-    fn skewness(&self) -> f64 { 0.0 }
-    fn kurtosis(&self) -> f64 { 0.0 }
+    fn skewness(&self) -> f64 {
+        0.0
+    }
+    fn kurtosis(&self) -> f64 {
+        0.0
+    }
     fn entropy(&self) -> f64 {
         0.5 * (2.0 * std::f64::consts::PI * std::f64::consts::E * self.sigma * self.sigma).ln()
     }

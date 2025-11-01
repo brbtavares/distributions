@@ -105,8 +105,10 @@ impl Moments for Beta {
     }
     fn entropy(&self) -> f64 {
         // H = ln B(a,b) - (a-1)ψ(a) - (b-1)ψ(b) + (a+b-2)ψ(a+b)
-        let a = self.a; let b = self.b;
-    let ln_beta = super::gamma::ln_gamma(a) + super::gamma::ln_gamma(b) - super::gamma::ln_gamma(a + b);
+        let a = self.a;
+        let b = self.b;
+        let ln_beta =
+            super::gamma::ln_gamma(a) + super::gamma::ln_gamma(b) - super::gamma::ln_gamma(a + b);
         ln_beta - (a - 1.0) * crate::num::digamma(a) - (b - 1.0) * crate::num::digamma(b)
             + (a + b - 2.0) * crate::num::digamma(a + b)
     }
@@ -177,6 +179,6 @@ mod tests {
     fn moments_higher() {
         let b = Beta::new(2.0, 2.0).unwrap();
         assert!(b.skewness().abs() < 1e-15);
-        assert!((b.kurtosis() - (-6.0/7.0)).abs() < 1e-12);
+        assert!((b.kurtosis() - (-6.0 / 7.0)).abs() < 1e-12);
     }
 }

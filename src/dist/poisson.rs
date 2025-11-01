@@ -233,20 +233,28 @@ impl Moments for Poisson {
     fn variance(&self) -> f64 {
         self.lambda
     }
-    fn skewness(&self) -> f64 { 1.0 / self.lambda.sqrt() }
-    fn kurtosis(&self) -> f64 { 1.0 / self.lambda }
+    fn skewness(&self) -> f64 {
+        1.0 / self.lambda.sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        1.0 / self.lambda
+    }
     fn entropy(&self) -> f64 {
         // Shannon entropy: H = - sum p(k) ln p(k). Truncate at a reasonable range around the mean.
         let lambda = self.lambda;
         let mean = lambda;
         let std = lambda.sqrt();
         let mut k_min = (mean - 10.0 * std).floor() as i64;
-        if k_min < 0 { k_min = 0; }
+        if k_min < 0 {
+            k_min = 0;
+        }
         let k_max = (mean + 10.0 * std).ceil() as i64;
         let mut h = 0.0;
         for k in k_min..=k_max {
             let pk = self.pmf_via_recurrence(k);
-            if pk > 0.0 { h -= pk * pk.ln(); }
+            if pk > 0.0 {
+                h -= pk * pk.ln();
+            }
         }
         h
     }

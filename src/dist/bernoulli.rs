@@ -60,19 +60,25 @@ impl Moments for Bernoulli {
     fn skewness(&self) -> f64 {
         let p = self.p;
         let q = 1.0 - p;
-        if p == 0.0 || p == 1.0 { return f64::NAN; }
+        if p == 0.0 || p == 1.0 {
+            return f64::NAN;
+        }
         (1.0 - 2.0 * p) / (p * q).sqrt()
     }
     fn kurtosis(&self) -> f64 {
         let p = self.p;
         let q = 1.0 - p;
-        if p == 0.0 || p == 1.0 { return f64::NAN; }
+        if p == 0.0 || p == 1.0 {
+            return f64::NAN;
+        }
         1.0 - 6.0 * p * q
     }
     fn entropy(&self) -> f64 {
         let p = self.p;
         let q = 1.0 - p;
-        if p == 0.0 || p == 1.0 { return 0.0; }
+        if p == 0.0 || p == 1.0 {
+            return 0.0;
+        }
         -(p * p.ln() + q * q.ln())
     }
 }
