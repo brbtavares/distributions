@@ -92,3 +92,22 @@ pub fn standard_normal_inv_cdf(p: f64) -> f64 {
     (((((A[0] * r + A[1]) * r + A[2]) * r + A[3]) * r + A[4]) * r + A[5]) * q
         / (((((B[0] * r + B[1]) * r + B[2]) * r + B[3]) * r + B[4]) * r + 1.0)
 }
+
+/// Digamma function ψ(x) = d/dx ln Γ(x) for x > 0.
+/// Implementation: recurrence to shift x >= 8, then asymptotic series.
+pub fn digamma(mut x: f64) -> f64 {
+    assert!(x > 0.0, "digamma requires x > 0");
+    let mut result = 0.0;
+    // Use recurrence ψ(x) = ψ(x+1) - 1/x, so move x up to a large value.
+    while x < 8.0 {
+        result -= 1.0 / x;
+        x += 1.0;
+    }
+    // Asymptotic expansion around infinity
+    let inv = 1.0 / x;
+    let inv2 = inv * inv;
+    let inv4 = inv2 * inv2;
+    let inv6 = inv4 * inv2;
+    // ψ(x) ≈ ln x - 1/(2x) - 1/(12x^2) + 1/(120x^4) - 1/(252x^6)
+    result + x.ln() - 0.5 * inv - (1.0 / 12.0) * inv2 + (1.0 / 120.0) * inv4 - (1.0 / 252.0) * inv6
+}

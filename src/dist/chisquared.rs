@@ -52,6 +52,15 @@ impl Moments for ChiSquared {
     fn variance(&self) -> f64 {
         2.0 * self.v
     }
+        fn skewness(&self) -> f64 {
+            (8.0 / self.v).sqrt()
+        }
+        fn kurtosis(&self) -> f64 {
+            12.0 / self.v
+        }
+        fn entropy(&self) -> f64 {
+            self.gamma.entropy()
+        }
 }
 
 #[cfg(test)]
@@ -62,5 +71,11 @@ mod tests {
         let x2 = ChiSquared::new(4.0).unwrap();
         assert!((x2.mean() - 4.0).abs() < 1e-12);
         assert!((x2.variance() - 8.0).abs() < 1e-12);
+    }
+    #[test]
+    fn moments_higher() {
+        let x2 = ChiSquared::new(4.0).unwrap();
+        assert!((x2.skewness() - 2f64.sqrt()).abs() < 1e-12);
+        assert!((x2.kurtosis() - 3.0).abs() < 1e-12);
     }
 }

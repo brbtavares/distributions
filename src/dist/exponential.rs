@@ -58,6 +58,9 @@ impl Moments for Exponential {
     fn variance(&self) -> f64 {
         1.0 / (self.lambda * self.lambda)
     }
+    fn skewness(&self) -> f64 { 2.0 }
+    fn kurtosis(&self) -> f64 { 6.0 }
+    fn entropy(&self) -> f64 { 1.0 - self.lambda.ln() }
 }
 
 #[cfg(test)]
@@ -70,5 +73,7 @@ mod tests {
         assert!((e.variance() - 0.25).abs() < 1e-15);
         assert!((e.cdf(0.0) - 0.0).abs() < 1e-15);
         assert!((e.pdf(0.0) - 2.0).abs() < 1e-12);
+        assert!((e.skewness() - 2.0).abs() < 1e-15);
+        assert!((e.kurtosis() - 6.0).abs() < 1e-15);
     }
 }

@@ -67,6 +67,21 @@ impl Moments for Geometric {
     fn variance(&self) -> f64 {
         (1.0 - self.p) / (self.p * self.p)
     }
+    fn skewness(&self) -> f64 {
+        let p = self.p;
+        (2.0 - p) / (1.0 - p).sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        let p = self.p;
+        6.0 + (p * p) / (1.0 - p)
+    }
+    fn entropy(&self) -> f64 {
+        // Shannon entropy of the geometric distribution on {1,2,...}
+        // H = -(p ln p + (1-p)/p ln(1-p))
+        let p = self.p;
+        let q = 1.0 - p;
+        -(p * p.ln() + (q / p) * q.ln())
+    }
 }
 
 #[cfg(test)]
@@ -83,5 +98,23 @@ mod tests {
         let g = Geometric::new(0.5).unwrap();
         assert!((g.cdf(1) - 0.5).abs() < 1e-15);
         assert!((g.cdf(2) - 0.75).abs() < 1e-15);
+    }
+    #[test]
+    fn moments_higher() {
+        let g = Geometric::new(0.25).unwrap();
+        let p: f64 = 0.25;
+        let skew = (2.0 - p)/((1.0 - p).sqrt());
+        let kurt = 6.0 + (p*p)/(1.0 - p);
+        assert!((g.skewness() - skew).abs() < 1e-12);
+        assert!((g.kurtosis() - kurt).abs() < 1e-12);
+    }
+
+    #[test]
+    fn entropy_geometric() {
+        let p = 0.3;
+        let g = Geometric::new(p).unwrap();
+        let q = 1.0 - p;
+        let expected = -(p * p.ln() + (q / p) * q.ln());
+        assert!((g.entropy() - expected).abs() < 1e-12);
     }
 }

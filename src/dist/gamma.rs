@@ -136,6 +136,14 @@ impl Moments for Gamma {
     fn variance(&self) -> f64 {
         self.shape * self.scale * self.scale
     }
+    fn skewness(&self) -> f64 { 2.0 / self.shape.sqrt() }
+    fn kurtosis(&self) -> f64 { 6.0 / self.shape }
+    fn entropy(&self) -> f64 {
+        // H = k + ln(theta) + ln(Gamma(k)) + (1-k) * psi(k)
+        let k = self.shape;
+        let theta = self.scale;
+        k + theta.ln() + super::gamma::ln_gamma(k) + (1.0 - k) * crate::num::digamma(k)
+    }
 }
 
 // --- helpers ---
@@ -242,5 +250,11 @@ mod tests {
     fn cdf_monotone() {
         let g = Gamma::new(3.0, 2.0).unwrap();
         assert!(g.cdf(1.0) < g.cdf(5.0));
+    }
+    #[test]
+    fn moments_higher() {
+        let g = Gamma::new(4.0, 1.0).unwrap();
+        assert!((g.skewness() - (2.0/4.0f64.sqrt())).abs() < 1e-15);
+        assert!((g.kurtosis() - (6.0/4.0)).abs() < 1e-15);
     }
 }

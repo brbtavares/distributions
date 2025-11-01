@@ -66,4 +66,38 @@ impl Moments for Uniform {
     fn variance(&self) -> f64 {
         (self.b - self.a).powi(2) / 12.0
     }
+    fn skewness(&self) -> f64 { 0.0 }
+    fn kurtosis(&self) -> f64 { -6.0 / 5.0 }
+    fn entropy(&self) -> f64 { (self.b - self.a).ln() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::dist::uniform::Uniform;
+
+    #[test]
+    fn uniform_basic() {
+        let u = Uniform::new(2.0, 5.0).unwrap();
+        assert!((u.pdf(3.0) - 1.0 / 3.0).abs() < 1e-15);
+        assert_eq!(u.cdf(1.0), 0.0);
+        assert_eq!(u.cdf(6.0), 1.0);
+        assert!((u.cdf(2.0) - 0.0).abs() < 1e-15);
+        assert!((u.cdf(3.5) - 0.5).abs() < 1e-15);
+        let q = u.inv_cdf(0.3);
+        assert!((q - 2.9).abs() < 1e-15);
+    }
+
+    #[test]
+    fn moments_higher() {
+        let u = Uniform::new(-1.0, 3.0).unwrap();
+        assert_eq!(u.skewness(), 0.0);
+        assert!((u.kurtosis() + 6.0/5.0).abs() < 1e-15);
+    }
+
+    #[test]
+    fn entropy_uniform() {
+        let u = Uniform::new(2.0, 5.0).unwrap();
+        assert!((u.entropy() - (3.0f64).ln()).abs() < 1e-15);
+    }
 }

@@ -13,7 +13,7 @@ Current scope:
 - Internal RNGs (non-cryptographic): SplitMix64, Xoroshiro128++, Xoshiro256**, PCG32
 - Traits: `Distribution`, `Continuous`, `Discrete`, `Moments`
 - Distributions:
-  - Continuous: Uniform, Normal, Exponential, Lognormal, Gamma, Chi-squared
+  - Continuous: Uniform, Normal, Exponential, Lognormal, Gamma, Beta, Chi-squared
   - Discrete: Bernoulli, Poisson, Geometric, Binomial
 
 ## Why
@@ -74,7 +74,7 @@ cargo test --all
   - `cdf(x) -> f64`, `in_support(x) -> bool`, `sample(&mut Rng) -> Value`
 - `Continuous` (f64): `pdf(x) -> f64`, `inv_cdf(p) -> f64`
 - `Discrete` (i64): `pmf(k) -> f64`, `inv_cdf(p) -> i64`
-- `Moments`: `mean() -> f64`, `variance() -> f64`
+- `Moments`: `mean() -> f64`, `variance() -> f64`, `skewness() -> f64`, `kurtosis() -> f64` (excess), `kurtosis_full() -> f64`
 - RNG: `rng::RngCore`, `rng::SplitMix64`
 
 ## RNGs: picking the right generator
@@ -140,7 +140,7 @@ The included benchmark compares Poisson sampling for small (Î»=2.5) and large (Î
 ## Roadmap
 
 - Distributions and structure
-  - More distributions: Dirichlet, Multivariate Normal
+  - More distributions
   - Truncation and affine transforms (shift/scale) as generic wrappers
   - Mixture models (finite mixtures) with EM fitting
 

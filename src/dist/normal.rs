@@ -77,11 +77,28 @@ impl Moments for Normal {
     fn variance(&self) -> f64 {
         self.sigma * self.sigma
     }
+    fn skewness(&self) -> f64 { 0.0 }
+    fn kurtosis(&self) -> f64 { 0.0 }
+    fn entropy(&self) -> f64 {
+        0.5 * (2.0 * std::f64::consts::PI * std::f64::consts::E * self.sigma * self.sigma).ln()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rng::SplitMix64;
+
+    #[test]
+    fn normal_basic() {
+        let n = Normal::new(0.0, 1.0).unwrap();
+        assert!((n.pdf(0.0) - 0.3989422804014327).abs() < 1e-12);
+        // CDF approximation via erf has typical error ~1e-7; use generous tolerance.
+        assert!((n.cdf(0.0) - 0.5).abs() < 2e-6);
+        let q = n.inv_cdf(0.975);
+        assert!((q - 1.959963).abs() < 5e-4);
+    }
+
     #[test]
     fn cdf_symmetry() {
         let n = Normal::new(0.0, 1.0).unwrap();
@@ -89,5 +106,30 @@ mod tests {
         let f = n.cdf(z);
         let f_neg = n.cdf(-z);
         assert!((f + f_neg - 1.0).abs() < 3e-15);
+    }
+
+    #[test]
+    fn moments_higher() {
+        let n = Normal::new(0.0, 2.0).unwrap();
+        assert_eq!(n.skewness(), 0.0);
+        assert_eq!(n.kurtosis(), 0.0);
+        assert_eq!(n.kurtosis_full(), 3.0);
+    }
+
+    #[test]
+    fn sampling_determinism() {
+        let n = Normal::new(0.0, 1.0).unwrap();
+        let mut rng1 = SplitMix64::seed_from_u64(42);
+        let mut rng2 = SplitMix64::seed_from_u64(42);
+        let x1 = n.sample(&mut rng1);
+        let x2 = n.sample(&mut rng2);
+        assert_eq!(x1.to_bits(), x2.to_bits());
+    }
+
+    #[test]
+    fn entropy_normal() {
+        let n = Normal::new(0.0, 2.0).unwrap();
+        let expected = 0.5 * (2.0 * std::f64::consts::PI * std::f64::consts::E * 4.0).ln();
+        assert!((n.entropy() - expected).abs() < 1e-12);
     }
 }

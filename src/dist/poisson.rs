@@ -233,6 +233,23 @@ impl Moments for Poisson {
     fn variance(&self) -> f64 {
         self.lambda
     }
+    fn skewness(&self) -> f64 { 1.0 / self.lambda.sqrt() }
+    fn kurtosis(&self) -> f64 { 1.0 / self.lambda }
+    fn entropy(&self) -> f64 {
+        // Shannon entropy: H = - sum p(k) ln p(k). Truncate at a reasonable range around the mean.
+        let lambda = self.lambda;
+        let mean = lambda;
+        let std = lambda.sqrt();
+        let mut k_min = (mean - 10.0 * std).floor() as i64;
+        if k_min < 0 { k_min = 0; }
+        let k_max = (mean + 10.0 * std).ceil() as i64;
+        let mut h = 0.0;
+        for k in k_min..=k_max {
+            let pk = self.pmf_via_recurrence(k);
+            if pk > 0.0 { h -= pk * pk.ln(); }
+        }
+        h
+    }
 }
 
 // -------- Internal helpers for large-λ sampling --------
@@ -318,5 +335,13 @@ mod tests {
         let x1 = pois.sample(&mut r1);
         let x2 = pois.sample(&mut r2);
         assert_eq!(x1, x2);
+    }
+
+    #[test]
+    fn moments_higher() {
+        let p = Poisson::new(4.0).unwrap();
+        assert!((p.skewness() - 0.5).abs() < 1e-15);
+        assert!((p.kurtosis() - 0.25).abs() < 1e-15);
+        assert!((p.kurtosis_full() - 3.25).abs() < 1e-15);
     }
 }

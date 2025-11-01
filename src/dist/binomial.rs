@@ -108,6 +108,25 @@ impl Moments for Binomial {
     fn variance(&self) -> f64 {
         (self.n as f64) * self.p * (1.0 - self.p)
     }
+    fn skewness(&self) -> f64 {
+        let n = self.n as f64;
+        let p = self.p;
+        (1.0 - 2.0 * p) / (n * p * (1.0 - p)).sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        let n = self.n as f64;
+        let p = self.p;
+        (1.0 - 6.0 * p * (1.0 - p)) / (n * p * (1.0 - p))
+    }
+    fn entropy(&self) -> f64 {
+        // Exact sum: H = - sum_{k=0}^n pmf(k) ln pmf(k)
+        let mut h = 0.0;
+        for k in 0..=self.n {
+            let pk = self.pmf_recurrence(k);
+            if pk > 0.0 { h -= pk * pk.ln(); }
+        }
+        h
+    }
 }
 
 #[cfg(test)]
@@ -126,5 +145,14 @@ mod tests {
         let b = Binomial::new(10, 0.3).unwrap();
         assert!(b.cdf(3) <= b.cdf(4));
         assert!(b.cdf(9) <= 1.0);
+    }
+    #[test]
+    fn moments_higher() {
+        let b = Binomial::new(10, 0.3).unwrap();
+        let n: f64 = 10.0; let p: f64 = 0.3; let q: f64 = 0.7;
+        let skew = (1.0 - 2.0*p)/((n*p*q).sqrt());
+        let kurt = (1.0 - 6.0*p*q)/(n*p*q);
+        assert!((b.skewness() - skew).abs() < 1e-12);
+        assert!((b.kurtosis() - kurt).abs() < 1e-12);
     }
 }

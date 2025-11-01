@@ -17,8 +17,20 @@ pub mod uniform;
 pub trait Moments {
     fn mean(&self) -> f64;
     fn variance(&self) -> f64;
+    fn std_dev(&self) -> f64 {
+        self.variance().sqrt()
+    }
+    /// Skewness (standardized 3rd central moment).
+    fn skewness(&self) -> f64;
+    /// Excess kurtosis (kurtosis − 3).
+    fn kurtosis(&self) -> f64;
+    /// Full kurtosis (i.e., excess kurtosis + 3).
+    fn kurtosis_full(&self) -> f64 { self.kurtosis() + 3.0 }
+    /// Entropy: Shannon (discrete) or differential entropy (continuous), in nats.
+    fn entropy(&self) -> f64;
+    
 }
-
+ 
 /// Basic trait for distributions.
 pub trait Distribution {
     type Value;
@@ -46,43 +58,4 @@ pub trait Discrete: Distribution<Value = i64> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DistError {
     InvalidParameter,
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::dist::{Continuous, Distribution};
-    use crate::dist::{normal::Normal, uniform::Uniform};
-    use crate::rng::SplitMix64;
-
-    #[test]
-    fn normal_basic() {
-        let n = Normal::new(0.0, 1.0).unwrap();
-        assert!((n.pdf(0.0) - 0.3989422804014327).abs() < 1e-12);
-        // CDF approximation via erf has typical error ~1e-7; use generous tolerance.
-        assert!((n.cdf(0.0) - 0.5).abs() < 2e-6);
-        let q = n.inv_cdf(0.975);
-        assert!((q - 1.959963).abs() < 5e-4);
-    }
-
-    #[test]
-    fn uniform_basic() {
-        let u = Uniform::new(2.0, 5.0).unwrap();
-        assert!((u.pdf(3.0) - 1.0 / 3.0).abs() < 1e-15);
-        assert_eq!(u.cdf(1.0), 0.0);
-        assert_eq!(u.cdf(6.0), 1.0);
-        assert!((u.cdf(2.0) - 0.0).abs() < 1e-15);
-        assert!((u.cdf(3.5) - 0.5).abs() < 1e-15);
-        let q = u.inv_cdf(0.3);
-        assert!((q - 2.9).abs() < 1e-15);
-    }
-
-    #[test]
-    fn sampling_determinism() {
-        let n = Normal::new(0.0, 1.0).unwrap();
-        let mut rng1 = SplitMix64::seed_from_u64(42);
-        let mut rng2 = SplitMix64::seed_from_u64(42);
-        let x1 = n.sample(&mut rng1);
-        let x2 = n.sample(&mut rng2);
-        assert_eq!(x1.to_bits(), x2.to_bits());
-    }
 }

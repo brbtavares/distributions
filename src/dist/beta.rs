@@ -89,6 +89,27 @@ impl Moments for Beta {
     fn variance(&self) -> f64 {
         (self.a * self.b) / ((self.a + self.b).powi(2) * (self.a + self.b + 1.0))
     }
+    fn skewness(&self) -> f64 {
+        let a = self.a;
+        let b = self.b;
+        let num = 2.0 * (b - a) * (a + b + 1.0).sqrt();
+        let den = (a + b + 2.0) * (a * b).sqrt();
+        num / den
+    }
+    fn kurtosis(&self) -> f64 {
+        let a = self.a;
+        let b = self.b;
+        let num = 6.0 * ((a - b).powi(2) * (a + b + 1.0) - a * b * (a + b + 2.0));
+        let den = a * b * (a + b + 2.0) * (a + b + 3.0);
+        num / den
+    }
+    fn entropy(&self) -> f64 {
+        // H = ln B(a,b) - (a-1)ψ(a) - (b-1)ψ(b) + (a+b-2)ψ(a+b)
+        let a = self.a; let b = self.b;
+    let ln_beta = super::gamma::ln_gamma(a) + super::gamma::ln_gamma(b) - super::gamma::ln_gamma(a + b);
+        ln_beta - (a - 1.0) * crate::num::digamma(a) - (b - 1.0) * crate::num::digamma(b)
+            + (a + b - 2.0) * crate::num::digamma(a + b)
+    }
 }
 
 // Helpers: ln_gamma and regularized incomplete beta (continued fractions)
@@ -151,5 +172,11 @@ mod tests {
     fn moments() {
         let b = Beta::new(2.0, 5.0).unwrap();
         assert!((b.mean() - (2.0 / 7.0)).abs() < 1e-12);
+    }
+    #[test]
+    fn moments_higher() {
+        let b = Beta::new(2.0, 2.0).unwrap();
+        assert!(b.skewness().abs() < 1e-15);
+        assert!((b.kurtosis() - (-6.0/7.0)).abs() < 1e-12);
     }
 }

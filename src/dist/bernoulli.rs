@@ -57,6 +57,24 @@ impl Moments for Bernoulli {
     fn variance(&self) -> f64 {
         self.p * (1.0 - self.p)
     }
+    fn skewness(&self) -> f64 {
+        let p = self.p;
+        let q = 1.0 - p;
+        if p == 0.0 || p == 1.0 { return f64::NAN; }
+        (1.0 - 2.0 * p) / (p * q).sqrt()
+    }
+    fn kurtosis(&self) -> f64 {
+        let p = self.p;
+        let q = 1.0 - p;
+        if p == 0.0 || p == 1.0 { return f64::NAN; }
+        1.0 - 6.0 * p * q
+    }
+    fn entropy(&self) -> f64 {
+        let p = self.p;
+        let q = 1.0 - p;
+        if p == 0.0 || p == 1.0 { return 0.0; }
+        -(p * p.ln() + q * q.ln())
+    }
 }
 
 #[cfg(test)]
@@ -74,5 +92,17 @@ mod tests {
         let b = Bernoulli::new(0.3).unwrap();
         assert!((b.cdf(0) - 0.7).abs() < 1e-15);
         assert!((b.cdf(1) - 1.0).abs() < 1e-15);
+    }
+
+    #[test]
+    fn entropy_values() {
+        let b = Bernoulli::new(0.5).unwrap();
+        // ln 2 in nats
+        assert!((b.entropy() - (2.0f64).ln()).abs() < 1e-15);
+
+        let b0 = Bernoulli::new(0.0).unwrap();
+        assert_eq!(b0.entropy(), 0.0);
+        let b1 = Bernoulli::new(1.0).unwrap();
+        assert_eq!(b1.entropy(), 0.0);
     }
 }
