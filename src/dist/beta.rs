@@ -11,7 +11,7 @@ pub struct Beta {
 
 impl Beta {
     pub fn new(a: f64, b: f64) -> Result<Self, DistError> {
-        if !(a > 0.0 && b > 0.0) || !a.is_finite() || !b.is_finite() {
+        if !(a > 0.0 && b > 0.0 && a.is_finite() && b.is_finite()) {
             return Err(DistError::InvalidParameter);
         }
         let ln_beta = ln_gamma(a) + ln_gamma(b) - ln_gamma(a + b);
@@ -39,7 +39,7 @@ impl Distribution for Beta {
         reg_inc_beta(self.a, self.b, x)
     }
     fn in_support(&self, x: f64) -> bool {
-        x >= 0.0 && x <= 1.0 && x.is_finite()
+        (0.0..=1.0).contains(&x) && x.is_finite()
     }
     fn sample<R: RngCore>(&self, rng: &mut R) -> f64 {
         let ga = Gamma::new(self.a, 1.0).unwrap().sample(rng);
