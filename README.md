@@ -28,6 +28,15 @@ Current scope:
 ## Status
 This is a work-in-progress library. APIs may evolve. Contributions and feedback are welcome.
 
+## Transparency: AI-assisted development
+
+This crate is developed with assistance from large language models (LLMs) to speed up code and documentation drafts. All AI-assisted changes are:
+- reviewed by maintainers (human code review);
+- validated by tests and checks (cargo test, clippy, CI);
+- numerically verified against references when applicable.
+
+API decisions, formulas, and algorithms are confirmed by the maintainers. We do not incorporate third-party content without proper licensing and we do not accept uncurated automated contributions. If you have any concerns about provenance or quality, please open an issue.
+
 ## Quick start
 
 Add to your workspace as a path dependency or use locally:
