@@ -6,7 +6,7 @@ authors = ["Bruno Tavares <brbtavares@outlook.com>"]
 rust-version = "1.85"
 
 # Crates.io metadata
-description = "Dependency-free probability distributions; clear APIs, deterministic sampling."
+description = "Dependency-free probability distributions; clear APIs, deterministic sampling. Developed with AI assistance and human review."
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/brbtavares/probability-rs"

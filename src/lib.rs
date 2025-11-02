@@ -22,6 +22,10 @@
 //! assert!((c - 0.5).abs() < 2e-6); // tolerance due to erf approximation
 //! assert!((q - 1.95996).abs() < 5e-3);
 //! ```
+//!
+//! Transparency: parts of this crate are drafted with AI assistance and
+//! always undergo human review, tests (cargo test, clippy, CI), and numeric
+//! validation where applicable.
 
 pub mod dist;
 pub mod num;
