@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="probability-rs logo" width="180" />
+</p>
+
 # probability-rs
 
 [![CI](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/brbtavares/probability-rs/actions/workflows/ci.yml)
