@@ -1,6 +1,7 @@
 use super::gamma::Gamma;
 use crate::dist::{Continuous, DistError, Distribution, Moments};
 use crate::rng::RngCore;
+use std::cmp::Ordering;
 
 /// Chi-squared with v degrees of freedom: equivalent to Gamma(k=v/2, theta=2).
 #[derive(Debug, Clone, Copy)]
@@ -11,7 +12,7 @@ pub struct ChiSquared {
 
 impl ChiSquared {
     pub fn new(v: f64) -> Result<Self, DistError> {
-        if !(v > 0.0) || !v.is_finite() {
+        if !v.is_finite() || v.partial_cmp(&0.0) != Some(Ordering::Greater) {
             return Err(DistError::InvalidParameter);
         }
         let gamma = Gamma::new(v / 2.0, 2.0)?;
