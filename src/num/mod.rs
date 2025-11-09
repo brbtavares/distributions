@@ -2,7 +2,7 @@
 
 pub const SQRT_2: f64 = std::f64::consts::SQRT_2;
 pub const INV_SQRT_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
-pub const SQRT_2PI: f64 = 2.506_628_274_631_000_7_f64; // sqrt(2*pi)
+pub const SQRT_2PI: f64 = 2.506_628_274_631_000_2_f64; // sqrt(2*pi) using double precision
 pub const INV_SQRT_2PI: f64 = 1.0 / SQRT_2PI; // 1 / sqrt(2*pi)
 pub const LN_2: f64 = std::f64::consts::LN_2;
 
@@ -31,7 +31,7 @@ pub fn erf(x: f64) -> f64 {
 
 /// Standard normal CDF via erf.
 pub fn standard_normal_cdf(z: f64) -> f64 {
-    0.5 * (1.0 + erf(z / std::f64::consts::SQRT_2))
+    0.5 * (1.0 + erf(z * INV_SQRT_2))
 }
 
 /// Standard normal inverse CDF (probit) using Peter J. Acklam's rational approximation.
@@ -104,10 +104,17 @@ pub fn digamma(mut x: f64) -> f64 {
         x += 1.0;
     }
     // Asymptotic expansion around infinity
+    // References:
+    // - NIST DLMF §5.11(ii), Eq. (5.11.2):
+    //   ψ(z) ~ ln z − 1/(2z) − Σ_{n≥1} B_{2n}/(2n z^{2n})
+    //   https://dlmf.nist.gov/5.11.E2
+    // - Abramowitz & Stegun, Handbook of Mathematical Functions:
+    //   6.3.18 (digamma asymptotic), 6.3.5 (recurrence ψ(x+1) = ψ(x) + 1/x)
     let inv = 1.0 / x;
     let inv2 = inv * inv;
     let inv4 = inv2 * inv2;
     let inv6 = inv4 * inv2;
+    // Truncation uses Bernoulli numbers B2=1/6, B4=-1/30, B6=1/42:
     // ψ(x) ≈ ln x - 1/(2x) - 1/(12x^2) + 1/(120x^4) - 1/(252x^6)
     result + x.ln() - 0.5 * inv - (1.0 / 12.0) * inv2 + (1.0 / 120.0) * inv4 - (1.0 / 252.0) * inv6
 }
