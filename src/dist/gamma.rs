@@ -12,7 +12,7 @@ pub struct Gamma {
 
 impl Gamma {
     pub fn new(shape: f64, scale: f64) -> Result<Self, DistError> {
-        if !(shape > 0.0 && scale > 0.0) || !shape.is_finite() || !scale.is_finite() {
+        if !(shape > 0.0 && scale > 0.0 && shape.is_finite() && scale.is_finite()) {
             return Err(DistError::InvalidParameter);
         }
         let inv_scale = 1.0 / scale;
