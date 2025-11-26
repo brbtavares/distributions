@@ -77,14 +77,14 @@ pub fn standard_normal_inv_cdf(p: f64) -> f64 {
         let q = (-2.0 * p.ln()).sqrt();
         let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
             / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
-        return -x;
+        return x;
     }
     if p > P_HIGH {
         // Upper tail region
         let q = (-2.0 * (1.0 - p).ln()).sqrt();
         let x = (((((C[0] * q + C[1]) * q + C[2]) * q + C[3]) * q + C[4]) * q + C[5])
             / ((((D[0] * q + D[1]) * q + D[2]) * q + D[3]) * q + 1.0);
-        return x;
+        return -x;
     }
     // Central region
     let q = p - 0.5;
@@ -117,4 +117,15 @@ pub fn digamma(mut x: f64) -> f64 {
     // Truncation uses Bernoulli numbers B2=1/6, B4=-1/30, B6=1/42:
     // ψ(x) ≈ ln x - 1/(2x) - 1/(12x^2) + 1/(120x^4) - 1/(252x^6)
     result + x.ln() - 0.5 * inv - (1.0 / 12.0) * inv2 + (1.0 / 120.0) * inv4 - (1.0 / 252.0) * inv6
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn inv_cdf_tails() {
+        assert!((standard_normal_inv_cdf(0.02424) - -1.9731366141503466).abs() < 1.0e-10);
+        assert!((standard_normal_inv_cdf(1.0 - 0.02424) - 1.9731366141503466).abs() < 1.0e-10);
+    }
 }
